@@ -1,0 +1,1 @@
+"""SkillPilot AI backend package."""
