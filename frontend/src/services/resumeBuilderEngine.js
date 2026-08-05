@@ -16,10 +16,10 @@ export function buildAtsResumeFromText(rawNotes, existingProfile = {}) {
   const githubMatch = rawNotes.match(/github\.com\/[a-zA-Z0-9_-]+/i);
   const linkedinMatch = rawNotes.match(/linkedin\.com\/in\/[a-zA-Z0-9_-]+/i);
 
-  const fullName = existingProfile.fullName || extractNameFromText(lines) || 'Alex Student';
+  const fullName = existingProfile.fullName || extractNameFromText(lines) || 'Vishnu Karanth';
   const email = emailMatch ? emailMatch[0] : (existingProfile.email || '');
   const phone = phoneMatch ? phoneMatch[0] : (existingProfile.phone || '');
-  const location = existingProfile.location || extractLocation(lines) || 'City, Country';
+  const location = existingProfile.location || extractLocation(lines) || 'Bengaluru';
   const github = githubMatch ? `https://${githubMatch[0]}` : (existingProfile.portfolio || 'github.com/student');
   const linkedin = linkedinMatch ? `https://${linkedinMatch[0]}` : (existingProfile.linkedin || 'linkedin.com/in/student');
 

@@ -46,26 +46,30 @@ export default function App() {
   const handleAuthSuccess = (authenticatedUser, isLogin) => {
     setUser(authenticatedUser);
     const existing = loadUserAnalysis();
-    if (existing && (existing.resumeText || existing.generatedResume || existing.githubUsername)) {
-      setUserData(existing);
-    } else {
-      const defaultUser = {
-        profile: {
-          fullName: authenticatedUser?.user_metadata?.full_name || authenticatedUser?.email?.split('@')[0] || 'Vishnu',
-          email: authenticatedUser?.email || 'student@skillsync.ai',
-          phone: '8431850049',
-          location: 'Bengaluru',
-          branch: 'B.E. Artificial Intelligence & Machine Learning',
-          preferredCareer: 'Software Engineer',
-          preferredTech: 'Python, Java, JavaScript, SQL, FastAPI, React, Next.js, Node.js, Docker, Git'
-        },
-        resumeText: 'Ambitious and results-driven B.E. Artificial Intelligence & Machine Learning student. Technical Skills: Python, Java, JavaScript, SQL, FastAPI, React, Next.js, Node.js, Docker, Git.',
-        githubConnected: true,
-        githubUsername: authenticatedUser?.email?.split('@')[0] || 'student'
-      };
-      setUserData(defaultUser);
-      saveUserAnalysis(defaultUser);
-    }
+    
+    const fullNameVal = authenticatedUser?.full_name || authenticatedUser?.user_metadata?.full_name || existing?.profile?.fullName || 'Vishnu Karanth';
+
+    const mergedProfile = {
+      ...(existing?.profile || {}),
+      fullName: fullNameVal,
+      email: authenticatedUser?.email || existing?.profile?.email || 'student@skillsync.ai',
+      phone: existing?.profile?.phone || '8431850049',
+      location: existing?.profile?.location || 'Bengaluru',
+      branch: existing?.profile?.branch || 'B.E. Artificial Intelligence & Machine Learning',
+      preferredCareer: existing?.profile?.preferredCareer || 'Software Engineer',
+      preferredTech: existing?.profile?.preferredTech || 'Python, Java, JavaScript, SQL, FastAPI, React, Next.js, Node.js, Docker, Git'
+    };
+
+    const updatedUser = {
+      ...(existing || {}),
+      profile: mergedProfile,
+      resumeText: existing?.resumeText || 'Ambitious and results-driven B.E. Artificial Intelligence & Machine Learning student. Technical Skills: Python, Java, JavaScript, SQL, FastAPI, React, Next.js, Node.js, Docker, Git.',
+      githubConnected: true,
+      githubUsername: existing?.githubUsername || 'student'
+    };
+
+    setUserData(updatedUser);
+    saveUserAnalysis(updatedUser);
 
     if (isLogin) {
       setStage('dashboard');
