@@ -173,6 +173,69 @@ const ROLE_ROADMAPS = {
       youtubeQuery: 'React+WebSockets+realtime+chat+tutorial',
       officialDocs: 'https://developer.mozilla.org/en-US/docs/Web/API/WebSocket'
     }
+  ],
+
+  'Full Stack Developer': [
+    { week: 1, title: 'React & TypeScript Full-Stack Setup', skill: 'React', time: 'Week 1-2', summary: 'Build React apps with TypeScript interfaces, custom hooks, and component composition patterns.', youtubeQuery: 'React+TypeScript+full+course+2024', officialDocs: 'https://react.dev/' },
+    { week: 2, title: 'Node.js & Express REST API Backend', skill: 'Node.js', time: 'Week 3-4', summary: 'Create REST APIs using Node.js and Express with JWT authentication and middleware.', youtubeQuery: 'Node.js+Express+REST+API+tutorial', officialDocs: 'https://nodejs.org/en/docs/' },
+    { week: 3, title: 'PostgreSQL & MongoDB Data Modeling', skill: 'Databases', time: 'Week 5-6', summary: 'Design SQL relational schemas and NoSQL document models for modern full-stack applications.', youtubeQuery: 'PostgreSQL+vs+MongoDB+full+course', officialDocs: 'https://www.postgresql.org/docs/' },
+    { week: 4, title: 'Docker Compose Full-Stack Deployment', skill: 'Docker', time: 'Week 7-8', summary: 'Package React, Node.js, and PostgreSQL together in Docker Compose for repeatable deployments.', youtubeQuery: 'Docker+Compose+full+stack+tutorial', officialDocs: 'https://docs.docker.com/compose/' },
+    { week: 5, title: 'WebSockets & Real-Time Features', skill: 'WebSockets', time: 'Week 9-10', summary: 'Add live notifications, chat, and real-time dashboard updates using Socket.io.', youtubeQuery: 'Socket.io+real+time+app+tutorial', officialDocs: 'https://socket.io/docs/v4/' },
+    { week: 6, title: 'CI/CD & Cloud Deployment (Vercel + Railway)', skill: 'Deployment', time: 'Week 11-12', summary: 'Deploy React frontend on Vercel and Node.js backend on Railway with automated GitHub Actions CI/CD.', youtubeQuery: 'Vercel+Railway+full+stack+deployment', officialDocs: 'https://vercel.com/docs' }
+  ],
+
+  'Machine Learning Engineer': [
+    { week: 1, title: 'Python for ML & NumPy/Pandas Mastery', skill: 'Pandas', time: 'Week 1-2', summary: 'Master data loading, cleaning, feature engineering, and exploratory data analysis using Pandas and NumPy.', youtubeQuery: 'Pandas+NumPy+full+course+for+data+science', officialDocs: 'https://pandas.pydata.org/docs/' },
+    { week: 2, title: 'Scikit-Learn Classification & Regression Models', skill: 'Scikit-Learn', time: 'Week 3-4', summary: 'Train, tune, and evaluate machine learning models using Scikit-Learn pipelines.', youtubeQuery: 'Scikit+Learn+machine+learning+tutorial', officialDocs: 'https://scikit-learn.org/stable/user_guide.html' },
+    { week: 3, title: 'PyTorch Deep Learning Fundamentals', skill: 'PyTorch', time: 'Week 5-6', summary: 'Build neural networks from scratch using PyTorch tensors, autograd, and training loops.', youtubeQuery: 'PyTorch+deep+learning+full+course', officialDocs: 'https://pytorch.org/tutorials/' },
+    { week: 4, title: 'MLflow Model Tracking & Experiment Registry', skill: 'MLflow', time: 'Week 7-8', summary: 'Track model experiments, log hyperparameters, and register production-ready model versions using MLflow.', youtubeQuery: 'MLflow+tutorial+for+beginners', officialDocs: 'https://mlflow.org/docs/latest/index.html' },
+    { week: 5, title: 'FastAPI ML Model Serving', skill: 'FastAPI', time: 'Week 9-10', summary: 'Wrap trained PyTorch/Scikit-Learn models in FastAPI REST endpoints for real-time inference.', youtubeQuery: 'FastAPI+ML+model+deployment+tutorial', officialDocs: 'https://fastapi.tiangolo.com/' },
+    { week: 6, title: 'Docker & MLOps Production Deployment', skill: 'MLOps', time: 'Week 11-12', summary: 'Package ML inference services in Docker containers and deploy with automated retraining pipelines.', youtubeQuery: 'MLOps+full+course+for+beginners', officialDocs: 'https://docs.docker.com/' }
+  ],
+
+  'Software Engineer': [
+    { week: 1, title: 'Data Structures & Algorithms Foundations', skill: 'DSA', time: 'Week 1-2', summary: 'Master Arrays, Linked Lists, Stacks, Queues, Trees, and Graphs — the core building blocks of efficient software.', youtubeQuery: 'Data+structures+and+algorithms+full+course', officialDocs: 'https://docs.python.org/3/tutorial/' },
+    { week: 2, title: 'Dynamic Programming & Problem Solving', skill: 'Algorithms', time: 'Week 3-4', summary: 'Solve complex DP problems (knapsack, LCS, coin change) and master Big O complexity analysis.', youtubeQuery: 'Dynamic+programming+full+course', officialDocs: 'https://leetcode.com/' },
+    { week: 3, title: 'System Design Fundamentals', skill: 'System Design', time: 'Week 5-6', summary: 'Design scalable systems like URL shorteners, notification services, and distributed caches.', youtubeQuery: 'System+design+interview+full+course', officialDocs: 'https://github.com/donnemartin/system-design-primer' },
+    { week: 4, title: 'Java / C++ Object-Oriented Programming', skill: 'OOP', time: 'Week 7-8', summary: 'Master OOP design principles: SOLID, design patterns (Factory, Observer, Strategy), and inheritance.', youtubeQuery: 'Java+OOP+full+course+for+beginners', officialDocs: 'https://docs.oracle.com/en/java/' },
+    { week: 5, title: 'Git, CI/CD & DevOps Collaboration', skill: 'Git', time: 'Week 9-10', summary: 'Master advanced Git workflows (rebase, cherry-pick, bisect) and GitHub Actions CI pipelines.', youtubeQuery: 'Git+and+GitHub+full+course', officialDocs: 'https://git-scm.com/doc' },
+    { week: 6, title: 'Docker & Cloud Deployment Basics', skill: 'Docker', time: 'Week 11-12', summary: 'Package and deploy your Java/Python applications in Docker containers on cloud servers.', youtubeQuery: 'Docker+full+course+for+beginners', officialDocs: 'https://docs.docker.com/' }
+  ],
+
+  'DevOps Engineer': [
+    { week: 1, title: 'Linux System Administration & Bash Scripting', skill: 'Linux', time: 'Week 1-2', summary: 'Master Linux file systems, process management, user permissions, networking, and shell scripting automation.', youtubeQuery: 'Linux+full+course+for+beginners', officialDocs: 'https://linux.die.net/man/' },
+    { week: 2, title: 'Docker Containerization & Multi-Stage Builds', skill: 'Docker', time: 'Week 3-4', summary: 'Write production Dockerfiles, set up Docker Compose multi-service environments, and optimize image sizes.', youtubeQuery: 'Docker+full+course+for+beginners', officialDocs: 'https://docs.docker.com/' },
+    { week: 3, title: 'Kubernetes Cluster Orchestration', skill: 'Kubernetes', time: 'Week 5-6', summary: 'Deploy apps to Kubernetes: pods, deployments, services, ingress, configmaps, and secrets.', youtubeQuery: 'Kubernetes+full+course+for+beginners', officialDocs: 'https://kubernetes.io/docs/home/' },
+    { week: 4, title: 'CI/CD with GitHub Actions & Jenkins', skill: 'CI/CD', time: 'Week 7-8', summary: 'Automate testing, building, and deployment pipelines using GitHub Actions and Jenkins.', youtubeQuery: 'GitHub+Actions+CI+CD+full+course', officialDocs: 'https://docs.github.com/en/actions' },
+    { week: 5, title: 'Terraform Infrastructure as Code (AWS)', skill: 'Terraform', time: 'Week 9-10', summary: 'Provision cloud resources (EC2, RDS, VPC, S3) on AWS using Terraform HCL declarative code.', youtubeQuery: 'Terraform+full+course+AWS', officialDocs: 'https://developer.hashicorp.com/terraform/docs' },
+    { week: 6, title: 'Prometheus & Grafana Monitoring', skill: 'Monitoring', time: 'Week 11-12', summary: 'Set up Prometheus metrics scraping and Grafana dashboards to monitor containers and servers in production.', youtubeQuery: 'Prometheus+Grafana+monitoring+tutorial', officialDocs: 'https://prometheus.io/docs/introduction/overview/' }
+  ],
+
+  'Cloud Engineer': [
+    { week: 1, title: 'AWS Core Services Foundations', skill: 'AWS', time: 'Week 1-2', summary: 'Learn EC2, S3, IAM, VPC, Route 53, and CloudWatch — the essential AWS services every cloud engineer must know.', youtubeQuery: 'AWS+full+course+for+beginners', officialDocs: 'https://docs.aws.amazon.com/' },
+    { week: 2, title: 'Terraform Infrastructure as Code', skill: 'Terraform', time: 'Week 3-4', summary: 'Write reusable Terraform modules to provision cloud infrastructure across AWS, GCP, and Azure.', youtubeQuery: 'Terraform+full+course+for+beginners', officialDocs: 'https://developer.hashicorp.com/terraform/docs' },
+    { week: 3, title: 'Docker & Kubernetes on Cloud', skill: 'Kubernetes', time: 'Week 5-6', summary: 'Deploy containerized apps using Docker on AWS ECS and managed Kubernetes clusters (EKS/GKE).', youtubeQuery: 'AWS+EKS+Kubernetes+tutorial', officialDocs: 'https://kubernetes.io/docs/home/' },
+    { week: 4, title: 'Serverless Architecture (AWS Lambda)', skill: 'Serverless', time: 'Week 7-8', summary: 'Build event-driven serverless functions using AWS Lambda, API Gateway, and SQS queues.', youtubeQuery: 'AWS+Lambda+serverless+tutorial', officialDocs: 'https://docs.aws.amazon.com/lambda/' },
+    { week: 5, title: 'Cloud Networking & Security (VPC, IAM)', skill: 'Cloud Security', time: 'Week 9-10', summary: 'Design secure cloud networks using VPCs, subnets, security groups, and IAM role policies.', youtubeQuery: 'AWS+VPC+networking+tutorial+for+beginners', officialDocs: 'https://docs.aws.amazon.com/vpc/' },
+    { week: 6, title: 'CI/CD on Cloud with CodePipeline & GitHub Actions', skill: 'CI/CD', time: 'Week 11-12', summary: 'Automate cloud deployments using AWS CodePipeline or GitHub Actions for zero-downtime releases.', youtubeQuery: 'AWS+CodePipeline+CI+CD+tutorial', officialDocs: 'https://docs.aws.amazon.com/codepipeline/' }
+  ],
+
+  'Cyber Security Engineer': [
+    { week: 1, title: 'Linux & Networking Security Fundamentals', skill: 'Linux Security', time: 'Week 1-2', summary: 'Master Linux hardening, firewall rules (iptables), port scanning, and network packet analysis.', youtubeQuery: 'Linux+security+for+beginners', officialDocs: 'https://linux.die.net/man/' },
+    { week: 2, title: 'OWASP Top 10 & Web Application Security', skill: 'OWASP', time: 'Week 3-4', summary: 'Understand and exploit the OWASP Top 10 vulnerabilities: SQL Injection, XSS, CSRF, IDOR, and Broken Auth.', youtubeQuery: 'OWASP+top+10+explained+for+beginners', officialDocs: 'https://owasp.org/www-project-top-ten/' },
+    { week: 3, title: 'Network Packet Analysis with Wireshark', skill: 'Wireshark', time: 'Week 5-6', summary: 'Capture and analyze TCP/UDP network traffic to detect intrusions, credential sniffing, and suspicious activity.', youtubeQuery: 'Wireshark+full+course+tutorial', officialDocs: 'https://www.wireshark.org/docs/' },
+    { week: 4, title: 'Penetration Testing with Kali Linux & Metasploit', skill: 'Pen Testing', time: 'Week 7-8', summary: 'Perform authorized penetration tests using Nmap scanning, Metasploit exploit modules, and Burp Suite proxies.', youtubeQuery: 'Kali+Linux+ethical+hacking+full+course', officialDocs: 'https://www.metasploit.com/get-started/' },
+    { week: 5, title: 'Cryptography & Secure Authentication Systems', skill: 'Cryptography', time: 'Week 9-10', summary: 'Implement bcrypt password hashing, JWT token security, RSA encryption, and TLS certificate management.', youtubeQuery: 'Cryptography+for+beginners+course', officialDocs: 'https://cryptography.io/en/latest/' },
+    { week: 6, title: 'SIEM & Incident Response with Splunk', skill: 'SIEM', time: 'Week 11-12', summary: 'Collect security logs into SIEM dashboards, write detection rules, and practice real-world incident response workflows.', youtubeQuery: 'Splunk+SIEM+tutorial+for+beginners', officialDocs: 'https://docs.splunk.com/Documentation/Splunk' }
+  ],
+
+  'Data Scientist': [
+    { week: 1, title: 'Python, NumPy & Pandas Data Wrangling', skill: 'Pandas', time: 'Week 1-2', summary: 'Load, clean, reshape, and analyze large datasets using Pandas DataFrames and NumPy array operations.', youtubeQuery: 'Pandas+NumPy+full+course+data+science', officialDocs: 'https://pandas.pydata.org/docs/' },
+    { week: 2, title: 'Statistics & Probability for Data Science', skill: 'Statistics', time: 'Week 3-4', summary: 'Master hypothesis testing, probability distributions, correlation, and A/B testing fundamentals.', youtubeQuery: 'Statistics+for+data+science+full+course', officialDocs: 'https://docs.scipy.org/doc/scipy/reference/stats.html' },
+    { week: 3, title: 'Machine Learning with Scikit-Learn', skill: 'Scikit-Learn', time: 'Week 5-6', summary: 'Train regression, classification, and clustering models with feature engineering pipelines and cross-validation.', youtubeQuery: 'Scikit+Learn+machine+learning+full+course', officialDocs: 'https://scikit-learn.org/stable/user_guide.html' },
+    { week: 4, title: 'Data Visualization (Matplotlib, Seaborn, Plotly)', skill: 'Visualization', time: 'Week 7-8', summary: 'Create impactful charts, heatmaps, pair plots, and interactive dashboards to communicate data insights.', youtubeQuery: 'Matplotlib+Seaborn+data+visualization+tutorial', officialDocs: 'https://matplotlib.org/stable/tutorials/index.html' },
+    { week: 5, title: 'Deep Learning & Neural Networks (PyTorch)', skill: 'PyTorch', time: 'Week 9-10', summary: 'Build and train deep neural networks for tabular data, image classification, and text analysis.', youtubeQuery: 'PyTorch+deep+learning+full+course', officialDocs: 'https://pytorch.org/tutorials/' },
+    { week: 6, title: 'SQL & Business Intelligence (Tableau / Power BI)', skill: 'SQL & BI', time: 'Week 11-12', summary: 'Query complex business databases with advanced SQL and build executive dashboards in Tableau or Power BI.', youtubeQuery: 'SQL+for+data+analysis+full+course', officialDocs: 'https://www.postgresql.org/docs/' }
   ]
 };
 

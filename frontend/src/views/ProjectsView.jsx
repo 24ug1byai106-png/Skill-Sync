@@ -338,6 +338,150 @@ const ROLE_PROJECTS = {
       database_design: 'Prometheus time-series database storing system metrics and HTTP response codes.',
       resume_bullet: 'Configured Prometheus and Grafana monitoring suite tracking container CPU/memory telemetry with automated alerts.'
     }
+  ],
+
+  'Data Scientist': [
+    {
+      id: 1,
+      difficulty: 'Exploratory Analysis',
+      title: 'End-to-End Customer Churn Prediction & Analysis Dashboard',
+      timeline: '2 Weeks',
+      tech_stack: ['Python', 'Pandas', 'NumPy', 'Scikit-Learn', 'Matplotlib'],
+      why_build: 'Companies spend millions acquiring customers. Building this teaches you to identify which users will cancel subscriptions using data patterns and machine learning.',
+      knowledge_gained: [
+        'How to clean and preprocess raw CSV datasets using Pandas and NumPy.',
+        'How to train classification models (Logistic Regression, Random Forest) with Scikit-Learn.',
+        'How to visualize model accuracy using confusion matrices and ROC-AUC curves.'
+      ],
+      database_design: 'Parquet column-oriented data store for fast feature retrieval and model training runs.',
+      resume_bullet: 'Built customer churn prediction model achieving 92% ROC-AUC score analyzing 100K+ user transaction records.'
+    },
+    {
+      id: 2,
+      difficulty: 'Statistical Modeling',
+      title: 'Real-Time Sales Forecasting Engine with Time-Series Analysis',
+      timeline: '2 Weeks',
+      tech_stack: ['Python', 'Pandas', 'Prophet', 'Plotly', 'Jupyter'],
+      why_build: 'Retailers plan stock months in advance based on demand forecasts. Building this teaches you time-series analysis — one of the most in-demand Data Science skills.',
+      knowledge_gained: [
+        'How to detect trends, seasonality, and anomalies in time-series data.',
+        'How to build future forecasts using Meta Prophet.',
+        'How to build interactive visualization dashboards using Plotly.'
+      ],
+      database_design: 'Time-indexed Pandas DataFrame storing daily sales aggregates for rolling window analysis.',
+      resume_bullet: 'Developed time-series sales forecasting model with 90% accuracy predicting monthly revenue trends using Prophet.'
+    },
+    {
+      id: 3,
+      difficulty: 'NLP & Text',
+      title: 'Sentiment Intelligence & Topic Modeling for Product Reviews',
+      timeline: '2 Weeks',
+      tech_stack: ['Python', 'NLTK', 'Scikit-Learn', 'Transformers', 'WordCloud'],
+      why_build: 'Amazon and Flipkart have millions of customer reviews. Building this teaches you Natural Language Processing (NLP) to automatically extract sentiment and topics from text.',
+      knowledge_gained: [
+        'How to tokenize, clean, and vectorize raw text data with NLTK and TF-IDF.',
+        'How to build text classification models for positive/negative/neutral sentiment.',
+        'How to discover hidden topics in documents using LDA Topic Modeling.'
+      ],
+      database_design: 'Document corpus stored with TF-IDF sparse matrix for efficient similarity lookups.',
+      resume_bullet: 'Built NLP sentiment analysis pipeline using NLTK and TF-IDF classifying 50,000+ product reviews with 88% accuracy.'
+    }
+  ],
+
+  'Cloud Engineer': [
+    {
+      id: 1,
+      difficulty: 'Cloud Infrastructure',
+      title: 'Multi-Region AWS Auto-Scaling Web Application Architecture',
+      timeline: '2.5 Weeks',
+      tech_stack: ['AWS EC2', 'AWS RDS', 'AWS S3', 'Terraform', 'Docker'],
+      why_build: 'Top cloud companies deploy apps across multiple regions so they never go offline. Building this teaches you how to architect globally resilient, auto-scaling cloud infrastructure.',
+      knowledge_gained: [
+        'How to provision EC2 compute instances and Auto Scaling Groups using Terraform.',
+        'How to configure AWS RDS managed PostgreSQL with read replicas.',
+        'How to route traffic across AWS regions using Route 53 and load balancers.'
+      ],
+      database_design: 'AWS RDS PostgreSQL Multi-AZ primary with read replicas and S3-backed static asset storage.',
+      resume_bullet: 'Designed multi-region AWS infrastructure using Terraform, EC2, RDS, and S3 achieving 99.99% uptime SLA.'
+    },
+    {
+      id: 2,
+      difficulty: 'Serverless & FaaS',
+      title: 'Event-Driven Serverless Notification & Processing Pipeline',
+      timeline: '2 Weeks',
+      tech_stack: ['AWS Lambda', 'AWS SQS', 'AWS SNS', 'Python', 'Terraform'],
+      why_build: 'Serverless computing is how Netflix and Airbnb process millions of events cheaply. Building this teaches you to build zero-infrastructure event pipelines that scale automatically.',
+      knowledge_gained: [
+        'How to write and deploy AWS Lambda functions triggered by SQS events.',
+        'How to chain asynchronous processes using SNS fan-out messaging.',
+        'How to monitor function execution, latency, and errors in CloudWatch.'
+      ],
+      database_design: 'SQS FIFO message queue feeding Lambda processors writing results to DynamoDB NoSQL store.',
+      resume_bullet: 'Architected serverless event processing pipeline using AWS Lambda, SQS, and SNS handling 100K+ events per day.'
+    },
+    {
+      id: 3,
+      difficulty: 'Kubernetes & Containers',
+      title: 'Production-Grade Kubernetes Cluster on AWS EKS',
+      timeline: '2.5 Weeks',
+      tech_stack: ['Kubernetes', 'AWS EKS', 'Helm', 'Docker', 'Terraform'],
+      why_build: 'Modern cloud apps run inside Kubernetes containers managed on AWS EKS. Building this project teaches you production-grade K8s cluster management.',
+      knowledge_gained: [
+        'How to deploy Kubernetes pods, services, and ingress controllers.',
+        'How to manage Helm charts for repeatable app deployments.',
+        'How to configure HPA (Horizontal Pod Autoscaler) for automatic scaling.'
+      ],
+      database_design: 'Kubernetes StatefulSet managing PostgreSQL pods with persistent EBS volume claims.',
+      resume_bullet: 'Deployed containerized microservices on AWS EKS using Kubernetes Helm charts with autoscaling and rolling updates.'
+    }
+  ],
+
+  'Cyber Security Engineer': [
+    {
+      id: 1,
+      difficulty: 'Penetration Testing',
+      title: 'Automated Web Vulnerability Scanner & Security Audit Tool',
+      timeline: '2 Weeks',
+      tech_stack: ['Python', 'OWASP', 'Burp Suite', 'Linux', 'Bash'],
+      why_build: 'Companies need to find their own security holes before hackers do. Building this teaches you how pen testers systematically scan web apps for SQL injection, XSS, and CSRF vulnerabilities.',
+      knowledge_gained: [
+        'How to detect SQL Injection, XSS, and CSRF vulnerabilities in web apps.',
+        'How to intercept and replay HTTP requests using Burp Suite proxies.',
+        'How to generate structured vulnerability reports for development teams.'
+      ],
+      database_design: 'SQLite audit log storing detected vulnerabilities, severity levels, and remediation advice.',
+      resume_bullet: 'Built automated web vulnerability scanner detecting OWASP Top 10 security flaws across 50+ target web endpoints.'
+    },
+    {
+      id: 2,
+      difficulty: 'Network Security',
+      title: 'Intrusion Detection System (IDS) with Real-Time Packet Analysis',
+      timeline: '2 Weeks',
+      tech_stack: ['Python', 'Wireshark', 'Scapy', 'Linux', 'Networking'],
+      why_build: 'Network attacks happen in real-time. Building an IDS teaches you to read raw network packets, detect anomalous traffic patterns, and trigger automated alerts.',
+      knowledge_gained: [
+        'How to capture and parse raw TCP/UDP network packets using Scapy.',
+        'How to detect port scans, brute-force attempts, and DDoS flood patterns.',
+        'How to trigger automated security alerts for suspicious traffic.'
+      ],
+      database_design: 'Packet event log database tracking source IPs, port activity, and threat classification scores.',
+      resume_bullet: 'Developed real-time network IDS using Python Scapy detecting port scans and brute-force attacks across live traffic.'
+    },
+    {
+      id: 3,
+      difficulty: 'Cryptography & Auth',
+      title: 'Zero-Trust Authentication System with MFA & Token Vault',
+      timeline: '2 Weeks',
+      tech_stack: ['Python', 'FastAPI', 'JWT', 'Cryptography', 'Redis'],
+      why_build: 'Password-only logins are insecure. Building a Zero-Trust system teaches you multi-factor authentication, token rotation, and cryptographic hashing — the security stack used by banks.',
+      knowledge_gained: [
+        'How to implement TOTP-based Multi-Factor Authentication (MFA) tokens.',
+        'How to securely hash passwords with bcrypt and Argon2 algorithms.',
+        'How to build rotating JWT refresh tokens with Redis blacklist revocation.'
+      ],
+      database_design: 'PostgreSQL user credentials store with bcrypt hashed passwords and Redis token revocation list.',
+      resume_bullet: 'Built zero-trust authentication API with JWT, MFA, and bcrypt password hashing securing sensitive user sessions.'
+    }
   ]
 };
 
