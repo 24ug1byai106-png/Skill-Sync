@@ -79,9 +79,11 @@ function generateIntelligentMentorReply(query) {
          `3. **Follow-up:** Feel free to ask me about specific companies (e.g. Google, Amazon), resume bullet tailoring, or system design topics!`;
 }
 
-export default function MentorView() {
+export default function MentorView({ userData = {} }) {
+  const userName = userData.profile?.fullName ? userData.profile.fullName.split(' ')[0] : 'there';
+
   const [messages, setMessages] = useState([
-    { sender: 'ai', text: "Hello Vishnu! I am your SkillSync AI Mentor. I have full context on your resume, GitHub repos, active roadmap, and skill gaps. Ask me anything about placements, company interview formats, or project guidance!" }
+    { sender: 'ai', text: `Hello ${userName}! I am your SkillSync AI Mentor. I have full context on your resume, GitHub repos, active roadmap, and skill gaps. Ask me anything about placements, company interview formats, or project guidance!` }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);

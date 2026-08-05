@@ -16,7 +16,7 @@ export function buildAtsResumeFromText(rawNotes, existingProfile = {}) {
   const githubMatch = rawNotes.match(/github\.com\/[a-zA-Z0-9_-]+/i);
   const linkedinMatch = rawNotes.match(/linkedin\.com\/in\/[a-zA-Z0-9_-]+/i);
 
-  const fullName = existingProfile.fullName || extractNameFromText(lines) || 'Vishnu Karanth';
+  const fullName = existingProfile.fullName || extractNameFromText(lines) || 'Student Name';
   const email = emailMatch ? emailMatch[0] : (existingProfile.email || '');
   const phone = phoneMatch ? phoneMatch[0] : (existingProfile.phone || '');
   const location = existingProfile.location || extractLocation(lines) || 'Bengaluru';

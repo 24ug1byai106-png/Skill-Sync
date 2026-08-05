@@ -322,7 +322,7 @@ ${r.languages.join(', ')}
             {/* 1. Header & Contact */}
             <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '12px', marginBottom: '16px' }}>
               <h1 style={{ fontSize: '24px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#0f172a', margin: '0 0 6px 0' }}>
-                {generatedResume.personal.fullName && generatedResume.personal.fullName.includes(' ') ? generatedResume.personal.fullName : (userData.profile?.fullName || 'Vishnu Karanth')}
+                {generatedResume.personal.fullName || userData.profile?.fullName || 'STUDENT NAME'}
               </h1>
               <div style={{ fontSize: '11px', color: '#475569', display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 {generatedResume.personal.email && <span>📧 {generatedResume.personal.email}</span>}
