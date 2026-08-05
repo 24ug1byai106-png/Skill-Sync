@@ -45,6 +45,28 @@ export default function App() {
 
   const handleAuthSuccess = (authenticatedUser, isLogin) => {
     setUser(authenticatedUser);
+    const existing = loadUserAnalysis();
+    if (existing && (existing.resumeText || existing.generatedResume || existing.githubUsername)) {
+      setUserData(existing);
+    } else {
+      const defaultUser = {
+        profile: {
+          fullName: authenticatedUser?.user_metadata?.full_name || authenticatedUser?.email?.split('@')[0] || 'Vishnu',
+          email: authenticatedUser?.email || 'student@skillsync.ai',
+          phone: '8431850049',
+          location: 'Bengaluru',
+          branch: 'B.E. Artificial Intelligence & Machine Learning',
+          preferredCareer: 'Software Engineer',
+          preferredTech: 'Python, Java, JavaScript, SQL, FastAPI, React, Next.js, Node.js, Docker, Git'
+        },
+        resumeText: 'Ambitious and results-driven B.E. Artificial Intelligence & Machine Learning student. Technical Skills: Python, Java, JavaScript, SQL, FastAPI, React, Next.js, Node.js, Docker, Git.',
+        githubConnected: true,
+        githubUsername: authenticatedUser?.email?.split('@')[0] || 'student'
+      };
+      setUserData(defaultUser);
+      saveUserAnalysis(defaultUser);
+    }
+
     if (isLogin) {
       setStage('dashboard');
     } else {

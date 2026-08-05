@@ -1,16 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, FileText, Download, Edit3, RefreshCw, CheckCircle2, AlertTriangle, User, Mail, Phone, MapPin, Globe, Award, Briefcase, GraduationCap, Code2 } from 'lucide-react';
 import { buildAtsResumeFromText } from '../services/resumeBuilderEngine';
 
 export default function AIResumeBuilder({ userData = {}, onUpdateUserData }) {
   const [inputText, setInputText] = useState('');
   const [generating, setGenerating] = useState(false);
-  const [generatedResume, setGeneratedResume] = useState(null);
+  const [generatedResume, setGeneratedResume] = useState(() => userData.generatedResume || null);
   const [isEditing, setIsEditing] = useState(false);
   const [showMissingModal, setShowMissingModal] = useState(false);
   const [missingData, setMissingData] = useState({ email: '', phone: '', degree: '' });
 
   const paperRef = useRef(null);
+
+  useEffect(() => {
+    if (userData.generatedResume) {
+      setGeneratedResume(userData.generatedResume);
+    }
+  }, [userData.generatedResume]);
 
   const placeholderText = `Paste anything about yourself...
 
@@ -46,13 +52,18 @@ It doesn't need to be formatted. Just write naturally.`;
 
       // Auto-update student profile data & scores across SkillSync AI
       if (onUpdateUserData && result) {
+        const skillsStr = result.skills ? Object.values(result.skills).flat().join(' ') : '';
+        const projsStr = result.projects ? result.projects.map(p => `${p.title} ${p.tech}`).join(' ') : '';
+        const resumeTextStr = `${result.summary} ${skillsStr} ${projsStr}`;
+
         onUpdateUserData({
-          resumeText: `${result.summary} ${Object.values(result.skills).flat().join(' ')} ${result.projects.map(p => `${p.title} ${p.tech}`).join(' ')}`,
+          generatedResume: result,
+          resumeText: resumeTextStr,
           profile: {
             ...userData.profile,
             fullName: result.personal.fullName,
-            email: result.personal.email || missingData.email,
-            phone: result.personal.phone || missingData.phone
+            email: result.personal.email || missingData.email || userData.profile?.email,
+            phone: result.personal.phone || missingData.phone || userData.profile?.phone
           }
         });
       }
@@ -76,7 +87,13 @@ It doesn't need to be formatted. Just write naturally.`;
       setGeneratedResume(updated);
 
       if (onUpdateUserData) {
+        const skillsStr = updated.skills ? Object.values(updated.skills).flat().join(' ') : '';
+        const projsStr = updated.projects ? updated.projects.map(p => `${p.title} ${p.tech}`).join(' ') : '';
+        const resumeTextStr = `${updated.summary} ${skillsStr} ${projsStr}`;
+
         onUpdateUserData({
+          generatedResume: updated,
+          resumeText: resumeTextStr,
           profile: {
             ...userData.profile,
             email: updated.personal.email,

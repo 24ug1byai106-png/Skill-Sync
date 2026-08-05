@@ -143,11 +143,20 @@ export function computeCareerAnalysis(userData = {}) {
   const reposList = userData.githubRepos || [];
   const isGithubConnected = Boolean(userData.githubConnected || reposList.length > 0);
 
+  // Extract skills from AI-generated resume if present
+  let generatedResumeText = '';
+  if (userData.generatedResume) {
+    const gr = userData.generatedResume;
+    const skillsStr = gr.skills ? Object.values(gr.skills).flat().join(' ') : '';
+    const projsStr = gr.projects ? gr.projects.map(p => `${p.title} ${p.tech}`).join(' ') : '';
+    generatedResumeText = `${gr.summary || ''} ${skillsStr} ${projsStr}`;
+  }
+
   // Extract text from repos
   const reposText = reposList.map(r => `${r.name} ${r.tech || ''} ${r.lang || ''} ${r.summary || ''}`).join(' ');
 
   // Combine all text sources to extract skills
-  const combinedText = `${techStackText} ${branchText} ${resumeText} ${reposText} ${certsList.map(c => c.name).join(' ')}`;
+  const combinedText = `${techStackText} ${branchText} ${resumeText} ${generatedResumeText} ${reposText} ${certsList.map(c => c.name).join(' ')}`;
   const extractedSkills = Array.from(new Set(extractSkillsFromText(combinedText)));
 
   // Identify Matched vs Missing Skills for target role
@@ -157,7 +166,7 @@ export function computeCareerAnalysis(userData = {}) {
 
   // 1. Resume ATS Score Calculation
   const skillRatio = requiredSkills.length > 0 ? (matchedSkills.length / requiredSkills.length) : 0;
-  const hasResume = Boolean(resumeText && resumeText.length > 5);
+  const hasResume = Boolean((resumeText && resumeText.length > 5) || generatedResumeText.length > 5 || extractedSkills.length > 0);
   const sectionBonus = (profile.fullName ? 10 : 0) + (profile.university ? 10 : 0) + (profile.cgpa ? 5 : 0) + (certsList.length > 0 ? 10 : 0);
   
   let atsScore = 0;

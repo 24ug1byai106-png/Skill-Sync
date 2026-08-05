@@ -89,7 +89,7 @@ export default function Judge0View() {
       </div>
 
       {/* Language Selector Bar */}
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }} className="hud-panel" style={{ padding: '12px 16px' }}>
+      <div className="hud-panel" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '12px 16px' }}>
         <span style={{ fontSize: '0.82rem', color: 'var(--hud-amber-bright)', fontWeight: 'bold', alignSelf: 'center', marginRight: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
           LANGUAGE:
         </span>
