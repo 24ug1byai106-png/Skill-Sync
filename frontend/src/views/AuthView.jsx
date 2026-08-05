@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Cpu, Lock, Mail, User, Check, X, ArrowRight } from 'lucide-react';
+import { Lock, Mail, User, Check, X, ArrowRight } from 'lucide-react';
 import { signUpUser, signInUser } from '../services/supabase';
+import SkillSyncLogo from '../components/SkillSyncLogo';
 
 export default function AuthView({ initialMode = 'signup', onSuccess, onSwitchToLanding }) {
   const [isLogin, setIsLogin] = useState(initialMode === 'login');
@@ -49,7 +50,7 @@ export default function AuthView({ initialMode = 'signup', onSuccess, onSwitchTo
     if (res.success) {
       onSuccess(res.user, isLogin);
     } else {
-      setErrorMsg('Authentication error. Please try again.');
+      setErrorMsg(res.error || 'Authentication error. Please check your credentials.');
     }
   };
 
@@ -57,22 +58,17 @@ export default function AuthView({ initialMode = 'signup', onSuccess, onSwitchTo
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '36px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Header */}
-        <div style={{ textAlign: 'center' }}>
-          <div
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div 
             onClick={onSwitchToLanding}
             style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '14px',
-              background: 'var(--accent-gradient)',
-              display: 'flex',
-              alignItems: 'center',
+              display: 'inline-flex',
               justifyContent: 'center',
-              margin: '0 auto 12px',
+              marginBottom: '16px',
               cursor: 'pointer'
             }}
           >
-            <Cpu size={26} color="#fff" />
+            <SkillSyncLogo size={56} showText={false} />
           </div>
           <h2 style={{ fontSize: '1.6rem' }}>
             {isLogin ? "Welcome Back to " : "Create your "}
@@ -98,7 +94,7 @@ export default function AuthView({ initialMode = 'signup', onSuccess, onSwitchTo
                 type="text"
                 required
                 className="form-input"
-                placeholder="Vishnu Karanth"
+                placeholder="e.g. Alex Smith"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />

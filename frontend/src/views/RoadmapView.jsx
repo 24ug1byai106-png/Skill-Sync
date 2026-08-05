@@ -1,108 +1,292 @@
-import React, { useState } from 'react';
-import { Map, CheckSquare, Calendar, BookOpen, Youtube, ExternalLink, Award } from 'lucide-react';
+import React from 'react';
+import { Map, Calendar, Youtube, ExternalLink, Sparkles, Clock, BookOpen, CheckCircle2, Target } from 'lucide-react';
+import { computeCareerAnalysis } from '../services/analysisEngine';
 
-export default function RoadmapView() {
-  const [missions, setMissions] = useState([
-    { id: 1, title: "Learn Docker & Containerization", xp: 150, deadline: "Aug 10", status: "completed" },
-    { id: 2, title: "Deploy FastAPI Backend on Railway", xp: 200, deadline: "Aug 17", status: "in_progress" },
-    { id: 3, title: "Solve 5 LeetCode Medium DSA Problems", xp: 100, deadline: "Aug 24", status: "pending" },
-    { id: 4, title: "Implement Redis Caching Layer", xp: 180, deadline: "Aug 31", status: "pending" },
-  ]);
+// Role-based 12-week learning roadmaps with YouTube tutorial video buttons & official docs
+const ROLE_ROADMAPS = {
+  'AI Engineer': [
+    {
+      week: 1,
+      title: 'Python Advanced & PyTorch Fundamentals',
+      skill: 'PyTorch',
+      time: 'Week 1-2',
+      summary: 'Learn PyTorch tensors, neural network layers, autograd gradients, and building your first deep learning model.',
+      youtubeQuery: 'PyTorch+full+course+for+beginners',
+      officialDocs: 'https://pytorch.org/tutorials/'
+    },
+    {
+      week: 2,
+      title: 'FastAPI Production Backend Microservices',
+      skill: 'FastAPI',
+      time: 'Week 3-4',
+      summary: 'Build high-performance REST APIs in Python using type hints, Pydantic schemas, and async request handlers.',
+      youtubeQuery: 'FastAPI+full+course+tutorial',
+      officialDocs: 'https://fastapi.tiangolo.com/tutorial/'
+    },
+    {
+      week: 3,
+      title: 'RAG AI, Embeddings & Vector Databases (FAISS)',
+      skill: 'Vector DBs',
+      time: 'Week 5-6',
+      summary: 'Learn how to generate text embeddings, store vector math in FAISS/Pinecone, and build PDF chat assistants.',
+      youtubeQuery: 'Vector+databases+explained+for+beginners',
+      officialDocs: 'https://faiss.ai/'
+    },
+    {
+      week: 4,
+      title: 'LangChain & Autonomous Agent Architecture',
+      skill: 'LangChain',
+      time: 'Week 7-8',
+      summary: 'Connect LLM models to web search tools, external APIs, and persistent graph memory states using LangChain.',
+      youtubeQuery: 'LangChain+tutorial+for+beginners',
+      officialDocs: 'https://python.langchain.com/docs/get_started/introduction'
+    },
+    {
+      week: 5,
+      title: 'Docker Containerization for AI Models',
+      skill: 'Docker',
+      time: 'Week 9-10',
+      summary: 'Package your PyTorch AI inference models and FastAPI backend into Docker containers for easy cloud deployment.',
+      youtubeQuery: 'Docker+full+course+for+beginners',
+      officialDocs: 'https://docs.docker.com/get-started/'
+    },
+    {
+      week: 6,
+      title: 'Model Fine-Tuning & GPU Cloud Deployment',
+      skill: 'HuggingFace',
+      time: 'Week 11-12',
+      summary: 'Fine-tune open-source HuggingFace Transformer models on custom datasets and deploy on GPU cloud instances.',
+      youtubeQuery: 'HuggingFace+fine+tuning+tutorial',
+      officialDocs: 'https://huggingface.co/docs/transformers/training'
+    }
+  ],
 
-  const toggleMission = (id) => {
-    setMissions(missions.map(m => {
-      if (m.id === id) {
-        return { ...m, status: m.status === 'completed' ? 'pending' : 'completed' };
-      }
-      return m;
-    }));
+  'Backend Developer': [
+    {
+      week: 1,
+      title: 'Python Async & FastAPI Microservices',
+      skill: 'FastAPI',
+      time: 'Week 1-2',
+      summary: 'Master asynchronous Python, HTTP request methods, Dependency Injection, and Pydantic validation.',
+      youtubeQuery: 'FastAPI+full+course+tutorial',
+      officialDocs: 'https://fastapi.tiangolo.com/tutorial/'
+    },
+    {
+      week: 2,
+      title: 'PostgreSQL Relational Schema & Indexing',
+      skill: 'PostgreSQL',
+      time: 'Week 3-4',
+      summary: 'Design relational database schemas, write complex SQL JOIN queries, and optimize query indexes.',
+      youtubeQuery: 'PostgreSQL+database+tutorial+for+beginners',
+      officialDocs: 'https://www.postgresql.org/docs/'
+    },
+    {
+      week: 3,
+      title: 'Redis In-Memory Caching & Rate Limiting',
+      skill: 'Redis',
+      time: 'Week 5-6',
+      summary: 'Implement Redis caching to serve API responses in under 10ms and build sliding-window rate limiters.',
+      youtubeQuery: 'Redis+crash+course',
+      officialDocs: 'https://redis.io/docs/'
+    },
+    {
+      week: 4,
+      title: 'Docker & Docker Compose Containerization',
+      skill: 'Docker',
+      time: 'Week 7-8',
+      summary: 'Write multi-stage Dockerfiles and compose files to run Python, PostgreSQL, and Redis together.',
+      youtubeQuery: 'Docker+full+course+for+beginners',
+      officialDocs: 'https://docs.docker.com/'
+    },
+    {
+      week: 5,
+      title: 'Kafka Event Streaming Architecture',
+      skill: 'Kafka',
+      time: 'Week 9-10',
+      summary: 'Build event-driven microservices using Apache Kafka queues to process payment & notification events.',
+      youtubeQuery: 'Apache+Kafka+tutorial+for+beginners',
+      officialDocs: 'https://kafka.apache.org/documentation/'
+    },
+    {
+      week: 6,
+      title: 'Kubernetes Cluster Deployment & CI/CD',
+      skill: 'Kubernetes',
+      time: 'Week 11-12',
+      summary: 'Deploy containerized backend microservices to Kubernetes clusters with automated GitHub Actions CI/CD.',
+      youtubeQuery: 'Kubernetes+tutorial+for+beginners',
+      officialDocs: 'https://kubernetes.io/docs/tutorials/'
+    }
+  ],
+
+  'Frontend Developer': [
+    {
+      week: 1,
+      title: 'Modern React & Component Architecture',
+      skill: 'React.js',
+      time: 'Week 1-2',
+      summary: 'Master React state, hooks (useState, useEffect, useMemo), and component lifecycle.',
+      youtubeQuery: 'React+js+full+course+for+beginners',
+      officialDocs: 'https://react.dev/'
+    },
+    {
+      week: 2,
+      title: 'TypeScript for Frontend Developers',
+      skill: 'TypeScript',
+      time: 'Week 3-4',
+      summary: 'Add strict types, interfaces, and generics to React components to eliminate runtime bugs.',
+      youtubeQuery: 'TypeScript+full+course+for+beginners',
+      officialDocs: 'https://www.typescriptlang.org/docs/'
+    },
+    {
+      week: 3,
+      title: 'Next.js Server-Side Rendering (SSR)',
+      skill: 'Next.js',
+      time: 'Week 5-6',
+      summary: 'Build fast Next.js applications using App Router, Server Components, and API routes for top SEO performance.',
+      youtubeQuery: 'Next+js+full+course+tutorial',
+      officialDocs: 'https://nextjs.org/docs'
+    },
+    {
+      week: 4,
+      title: 'Tailwind CSS & Responsive UI Systems',
+      skill: 'Tailwind CSS',
+      time: 'Week 7-8',
+      summary: 'Design modern responsive layouts, dark modes, and micro-animations using utility-first Tailwind CSS.',
+      youtubeQuery: 'Tailwind+CSS+full+course',
+      officialDocs: 'https://tailwindcss.com/docs'
+    },
+    {
+      week: 5,
+      title: 'Global State Management (Zustand / Redux)',
+      skill: 'State Management',
+      time: 'Week 9-10',
+      summary: 'Manage complex frontend application state cleanly across pages using Zustand or Redux Toolkit.',
+      youtubeQuery: 'Zustand+React+state+management+tutorial',
+      officialDocs: 'https://zustand-demo.pmnd.rs/'
+    },
+    {
+      week: 6,
+      title: 'WebSockets & Live Real-Time Interactivity',
+      skill: 'WebSockets',
+      time: 'Week 11-12',
+      summary: 'Connect React frontends to WebSockets for live chat, instant notifications, and real-time dashboards.',
+      youtubeQuery: 'React+WebSockets+realtime+chat+tutorial',
+      officialDocs: 'https://developer.mozilla.org/en-US/docs/Web/API/WebSocket'
+    }
+  ]
+};
+
+export default function RoadmapView({ userData = {} }) {
+  const analysis = computeCareerAnalysis(userData);
+  const userGoal = analysis.targetGoal || 'AI Engineer';
+
+  const roadmapSteps = ROLE_ROADMAPS[userGoal] || ROLE_ROADMAPS['AI Engineer'];
+
+  const openYoutube = (query) => {
+    window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
+  };
+
+  const openDocs = (url) => {
+    window.open(url, '_blank');
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      
+      {/* Title Header */}
       <div>
-        <h2>Personalized Career Roadmap & Weekly Missions</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Structured 12-week roadmap generated by Groq AI based on your current skills and target role.</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+          <Sparkles color="var(--hud-cyan-bright)" size={22} />
+          <h2 style={{ fontSize: '1.4rem', color: 'var(--hud-cyan-bright)', margin: 0, fontFamily: "'Share Tech Mono', monospace" }}>
+            12-WEEK CAREER ROADMAP & VIDEO TUTORIALS
+          </h2>
+        </div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
+          Structured week-by-week learning roadmap for <strong style={{ color: 'var(--hud-cyan-bright)' }}>{userGoal}</strong> with direct YouTube video courses & official documentation.
+        </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px' }}>
-        {/* Left Column: Weekly Missions Checklist */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>Active Weekly AI Missions</h3>
-            <span style={{ fontSize: '0.8rem', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', padding: '4px 10px', borderRadius: '12px' }}>
-              630 XP Earned
-            </span>
-          </div>
+      {/* Goal Badge */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'rgba(0, 229, 255, 0.08)', border: '1px solid var(--border-cyan)', width: 'fit-content' }}>
+        <Target size={16} color="var(--hud-cyan-bright)" />
+        <span style={{ fontSize: '0.82rem', color: 'var(--hud-cyan-bright)', fontWeight: 700, fontFamily: "'Share Tech Mono', monospace" }}>
+          ROADMAP GOAL: {userGoal.toUpperCase()} (12-WEEK CURRICULUM LOADED)
+        </span>
+      </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {missions.map(mission => (
-              <div
-                key={mission.id}
-                onClick={() => toggleMission(mission.id)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '14px',
-                  padding: '14px',
-                  borderRadius: 'var(--radius-md)',
-                  background: mission.status === 'completed' ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid',
-                  borderColor: mission.status === 'completed' ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)',
-                  cursor: 'pointer',
-                  transition: 'var(--transition)'
-                }}
+      {/* Timeline Roadmap Cards */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {roadmapSteps.map((step) => (
+          <div
+            key={step.week}
+            className="hud-panel"
+            style={{
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              background: 'var(--bg-panel)',
+              borderLeft: '4px solid var(--hud-cyan-bright)'
+            }}
+          >
+            {/* Header Row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <span style={{
+                    background: 'rgba(0, 229, 255, 0.12)',
+                    color: 'var(--hud-cyan-bright)',
+                    border: '1px solid var(--border-cyan)',
+                    padding: '2px 10px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    fontFamily: "'Share Tech Mono', monospace"
+                  }}>
+                    {step.time.toUpperCase()}
+                  </span>
+                  <span style={{ color: 'var(--hud-amber-bright)', fontSize: '0.8rem', fontWeight: 700, fontFamily: "'Share Tech Mono', monospace" }}>
+                    [TARGET SKILL: {step.skill.toUpperCase()}]
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.3rem', color: 'var(--hud-cyan-bright)', margin: 0, fontFamily: "'Share Tech Mono', monospace" }}>
+                  {step.title}
+                </h3>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
+              {step.summary}
+            </p>
+
+            {/* Direct Video & Docs Action Buttons */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', borderTop: '1px solid var(--border-cyan)', paddingTop: '16px' }}>
+              
+              <button
+                className="btn-hud-amber"
+                onClick={() => openYoutube(step.youtubeQuery)}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', fontSize: '0.84rem' }}
               >
-                <input
-                  type="checkbox"
-                  checked={mission.status === 'completed'}
-                  onChange={() => {}}
-                  style={{ width: '18px', height: '18px', accentColor: '#6366f1' }}
-                />
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ fontSize: '0.95rem', textDecoration: mission.status === 'completed' ? 'line-through' : 'none', color: mission.status === 'completed' ? 'var(--text-muted)' : 'var(--text-primary)' }}>
-                    {mission.title}
-                  </h4>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Deadline: {mission.deadline}</p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', padding: '4px 8px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600 }}>
-                  <Award size={14} />
-                  +{mission.xp} XP
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+                <Youtube size={18} color="#FF0000" />
+                WATCH FREE TUTORIAL ON YOUTUBE ▶
+              </button>
 
-        {/* Right Column: Curated Learning Resources */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3>Curated Recommended Resources</h3>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <a href="https://kubernetes.io/docs/tutorials/" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <BookOpen size={20} color="#06b6d4" />
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ fontSize: '0.85rem' }}>Kubernetes Official Tutorial</h4>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Documentation • 3 hours</p>
-                </div>
-                <ExternalLink size={14} color="var(--text-muted)" />
-              </div>
-            </a>
+              <button
+                className="btn-secondary"
+                onClick={() => openDocs(step.officialDocs)}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', fontSize: '0.84rem' }}
+              >
+                <ExternalLink size={16} color="var(--hud-cyan-bright)" />
+                OFFICIAL DOCS & GUIDE 🌐
+              </button>
 
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Youtube size={20} color="#ec4899" />
-                <div style={{ flex: 1 }}>
-                  <h4 style={{ fontSize: '0.85rem' }}>Redis Crash Course for Python</h4>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>YouTube • 45 minutes</p>
-                </div>
-                <ExternalLink size={14} color="var(--text-muted)" />
-              </div>
-            </a>
+            </div>
+
           </div>
-        </div>
+        ))}
       </div>
+
     </div>
   );
 }

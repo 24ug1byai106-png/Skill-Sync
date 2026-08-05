@@ -1,20 +1,25 @@
 import React from 'react';
 import { ShieldCheck, Trophy, Zap, Code, Award, Star } from 'lucide-react';
+import { computeCareerAnalysis } from '../services/analysisEngine';
 
-export default function CareerReadinessView() {
+export default function CareerReadinessView({ userData = {} }) {
+  const analysis = computeCareerAnalysis(userData);
+
   const readinessComponents = [
-    { label: "Resume ATS Score", score: 82, weight: "25%", status: "Strong", icon: Trophy, color: "#3b82f6" },
-    { label: "GitHub Code Quality", score: 75, weight: "25%", status: "Good", icon: Zap, color: "#8b5cf6" },
-    { label: "Coding Benchmark Score", score: 85, weight: "20%", status: "Excellent", icon: Code, color: "#06b6d4" },
-    { label: "Production Project Rating", score: 78, weight: "15%", status: "Good", icon: Star, color: "#f59e0b" },
-    { label: "Certificates & Credentials", score: 90, weight: "15%", status: "Verified", icon: Award, color: "#ec4899" },
+    { label: "Resume ATS Score", score: analysis.atsScore, weight: "35%", icon: Trophy, color: "#3b82f6" },
+    { label: "GitHub Code Quality", score: analysis.githubScore, weight: "25%", icon: Zap, color: "#8b5cf6" },
+    { label: "Coding Benchmark Score", score: analysis.codingScore, weight: "20%", icon: Code, color: "#06b6d4" },
+    { label: "Production Project Rating", score: analysis.projectScore, weight: "10%", icon: Star, color: "#f59e0b" },
+    { label: "Certificates & Credentials", score: analysis.certScore, weight: "10%", icon: Award, color: "#ec4899" },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
         <h2>Placement Career Readiness Engine</h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Weighted algorithm measuring student preparedness for target industry engineering roles.</p>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+          Dynamically calculated score for target role: <strong>{analysis.targetGoal}</strong>.
+        </p>
       </div>
 
       <div className="glass-panel" style={{ padding: '32px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
@@ -36,8 +41,10 @@ export default function CareerReadinessView() {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <span style={{ fontSize: '2.8rem', fontWeight: 800 }}>78.5%</span>
-            <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>Placement Ready</span>
+            <span style={{ fontSize: '2.8rem', fontWeight: 800 }}>{analysis.overallReadiness}%</span>
+            <span style={{ fontSize: '0.75rem', color: analysis.overallReadiness > 60 ? '#10b981' : '#f59e0b', fontWeight: 600 }}>
+              Placement Ready
+            </span>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LandingPage from './views/LandingPage';
 import AuthView from './views/AuthView';
 import OnboardingWizard from './views/OnboardingWizard';
@@ -23,12 +23,15 @@ import MentorView from './views/MentorView';
 import AchievementsView from './views/AchievementsView';
 import SettingsView from './views/SettingsView';
 
+import { loadUserAnalysis, saveUserAnalysis } from './services/analysisEngine';
+
 export default function App() {
   // Application Stage: 'landing' | 'auth' | 'onboarding' | 'processing' | 'dashboard'
   const [stage, setStage] = useState('landing');
   const [authMode, setAuthMode] = useState('signup');
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [userData, setUserData] = useState(() => loadUserAnalysis() || {});
 
   const handleStartOnboarding = () => {
     setAuthMode('signup');
@@ -43,17 +46,25 @@ export default function App() {
   const handleAuthSuccess = (authenticatedUser, isLogin) => {
     setUser(authenticatedUser);
     if (isLogin) {
-      // Returning user directly opens dashboard
       setStage('dashboard');
     } else {
-      // New user goes through 5-step onboarding wizard
       setStage('onboarding');
     }
   };
 
   const handleCompleteOnboarding = (onboardingData) => {
     console.log("Onboarding complete:", onboardingData);
+    setUserData(onboardingData);
+    saveUserAnalysis(onboardingData);
     setStage('processing');
+  };
+
+  const handleUpdateUserData = (updatedFields) => {
+    setUserData(prev => {
+      const merged = { ...prev, ...updatedFields };
+      saveUserAnalysis(merged);
+      return merged;
+    });
   };
 
   const handleFinishAiProcessing = () => {
@@ -65,7 +76,6 @@ export default function App() {
     setStage('landing');
   };
 
-  // Render stage screens before reaching dashboard
   if (stage === 'landing') {
     return <LandingPage onGetStarted={handleStartOnboarding} onLogin={handleStartLogin} />;
   }
@@ -82,50 +92,45 @@ export default function App() {
     return <AiProcessingView onFinishProcessing={handleFinishAiProcessing} />;
   }
 
-  // Stage === 'dashboard': Main SkillSync AI Workspace
   const renderSubView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView />;
+        return <DashboardView userData={userData} />;
       case 'career_dna':
-        return <CareerDnaView />;
+        return <CareerDnaView userData={userData} />;
       case 'resume':
-        return <ResumeView />;
+        return <ResumeView userData={userData} onUpdateUserData={handleUpdateUserData} />;
       case 'github':
-        return <GithubView />;
+        return <GithubView userData={userData} onUpdateUserData={handleUpdateUserData} />;
       case 'projects':
-        return <ProjectsView />;
+        return <ProjectsView userData={userData} />;
       case 'skill_gap':
-        return <SkillGapView />;
+        return <SkillGapView userData={userData} />;
       case 'readiness':
-        return <CareerReadinessView />;
+        return <CareerReadinessView userData={userData} />;
       case 'roadmap':
-        return <RoadmapView />;
+        return <RoadmapView userData={userData} />;
       case 'missions':
-        return <MissionsView />;
+        return <MissionsView userData={userData} />;
       case 'certificates':
-        return <CertificatesView />;
+        return <CertificatesView userData={userData} onUpdateUserData={handleUpdateUserData} />;
       case 'coding':
-        return <Judge0View />;
+        return <Judge0View userData={userData} />;
       case 'mentor':
-        return <MentorView />;
+        return <MentorView userData={userData} />;
       case 'achievements':
-        return <AchievementsView />;
+        return <AchievementsView userData={userData} />;
       case 'settings':
-        return <SettingsView />;
+        return <SettingsView userData={userData} />;
       default:
-        return <DashboardView />;
+        return <DashboardView userData={userData} />;
     }
   };
 
   return (
     <div style={{ position: 'relative', display: 'flex', minHeight: '100vh', background: 'var(--bg-dark)' }}>
       <GlobalAIAmbience activeTab={activeTab} />
-      
-      {/* SkillSync AI Navigation Sidebar */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
-
-      {/* Main Workspace Area */}
       <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <Header user={user} onSearch={(q) => alert(`SkillSync AI Search: "${q}"`)} />
         <main style={{ padding: '32px', flex: 1, overflowY: 'auto' }}>

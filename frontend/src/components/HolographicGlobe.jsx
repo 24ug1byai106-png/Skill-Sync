@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Cpu, Activity, TrendingUp } from 'lucide-react';
+import { ShieldAlert, Target } from 'lucide-react';
 
 export default function HolographicGlobe() {
   const canvasRef = useRef(null);
@@ -10,15 +10,14 @@ export default function HolographicGlobe() {
     const ctx = canvas.getContext('2d');
 
     let animationFrameId;
-    const size = 440;
+    const size = 420;
     canvas.width = size;
     canvas.height = size;
 
-    const radius = 135;
-    const numPoints = 400;
+    const radius = 130;
+    const numPoints = 350;
     const points = [];
 
-    // Generate 3D sphere points using Fibonacci lattice
     const phi = Math.PI * (3 - Math.sqrt(5));
     for (let i = 0; i < numPoints; i++) {
       const y = 1 - (i / (numPoints - 1)) * 2;
@@ -39,18 +38,15 @@ export default function HolographicGlobe() {
       const cx = size / 2;
       const cy = size / 2 - 10;
 
-      angleY += 0.008;
+      angleY += 0.007;
 
-      // Project 3D points onto 2D canvas
       const projected = [];
       points.forEach((p) => {
-        // Rotate Y
         const cosY = Math.cos(angleY);
         const sinY = Math.sin(angleY);
         const x1 = p.x * cosY - p.z * sinY;
         const z1 = p.z * cosY + p.x * sinY;
 
-        // Rotate X
         const cosX = Math.cos(angleX);
         const sinX = Math.sin(angleX);
         const y2 = p.y * cosX - z1 * sinX;
@@ -65,18 +61,17 @@ export default function HolographicGlobe() {
         });
       });
 
-      // Sort points by depth z
       projected.sort((a, b) => b.z - a.z);
 
-      // Draw node connections (neural lines)
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.14)';
-      ctx.lineWidth = 0.7;
-      for (let i = 0; i < projected.length; i += 6) {
+      // Draw HUD lines
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.16)';
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < projected.length; i += 7) {
         for (let j = i + 1; j < Math.min(i + 4, projected.length); j++) {
           const p1 = projected[i];
           const p2 = projected[j];
           const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-          if (dist < 50) {
+          if (dist < 45) {
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
@@ -85,29 +80,30 @@ export default function HolographicGlobe() {
         }
       }
 
-      // Draw globe node dots
-      projected.forEach((p) => {
+      // Draw node dots (Cyan + Amber)
+      projected.forEach((p, idx) => {
         const alpha = Math.max(0.15, (p.z + radius) / (2 * radius));
-        ctx.fillStyle = p.z > 0 ? `rgba(0, 229, 255, ${alpha})` : `rgba(138, 43, 226, ${alpha * 0.7})`;
+        const isAmber = idx % 10 === 0;
+        ctx.fillStyle = isAmber ? `rgba(255, 159, 28, ${alpha})` : `rgba(0, 229, 255, ${alpha})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.scale * 2.2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.scale * 2, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Draw orbital HUD rings
+      // Orbital Rings
       ctx.save();
       ctx.translate(cx, cy);
-      ctx.rotate(angleY * 0.5);
+      ctx.rotate(angleY * 0.4);
 
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.35)';
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.ellipse(0, 0, radius + 25, (radius + 25) * 0.35, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, radius + 20, (radius + 20) * 0.35, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(138, 43, 226, 0.35)';
+      ctx.strokeStyle = 'rgba(255, 159, 28, 0.4)';
       ctx.beginPath();
-      ctx.ellipse(0, 0, radius + 45, (radius + 45) * 0.25, Math.PI / 4, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, radius + 40, (radius + 40) * 0.25, Math.PI / 4, 0, Math.PI * 2);
       ctx.stroke();
 
       ctx.restore();
@@ -124,82 +120,55 @@ export default function HolographicGlobe() {
     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       
       {/* 3D Rotating Globe Canvas */}
-      <canvas ref={canvasRef} style={{ display: 'block', filter: 'drop-shadow(0 0 30px rgba(0, 229, 255, 0.4))' }} />
+      <canvas ref={canvasRef} style={{ display: 'block', filter: 'drop-shadow(0 0 20px rgba(0, 229, 255, 0.4))' }} />
 
-      {/* Holographic Projector Base */}
-      <div style={{
-        width: '320px',
-        height: '40px',
-        borderRadius: '50%',
-        background: 'radial-gradient(ellipse at center, rgba(0, 229, 255, 0.4) 0%, rgba(138, 43, 226, 0.2) 50%, transparent 80%)',
-        border: '1px solid var(--border-cyber)',
-        boxShadow: '0 0 35px rgba(0, 229, 255, 0.5)',
-        marginTop: '-30px',
-        position: 'relative'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '-60px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '200px',
-          height: '60px',
-          background: 'linear-gradient(to top, rgba(0, 229, 255, 0.2), transparent)',
-          clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)',
-          pointerEvents: 'none'
-        }} />
-      </div>
-
-      {/* Orbiting Floating Glass Telemetry Cards */}
-      <div className="holo-panel floating-panel" style={{
+      {/* Orbiting HUD Telemetry Widgets */}
+      <div className="hud-panel" style={{
         position: 'absolute',
         top: '20px',
-        left: '-40px',
-        padding: '12px 18px',
+        left: '-30px',
+        padding: '10px 14px',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-        fontSize: '0.8rem',
-        animationDelay: '0s'
+        gap: '8px',
+        fontSize: '0.75rem'
       }}>
-        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#00F5D4', boxShadow: '0 0 10px #00F5D4' }} />
+        <span className="telemetry-dot telemetry-dot-cyan" />
         <div>
-          <strong style={{ color: '#00E5FF' }}>AI CORE ONLINE</strong>
-          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Groq Llama 3.3 70B Active</p>
+          <span style={{ color: 'var(--hud-cyan-bright)', fontWeight: 700, letterSpacing: '1px' }}>[SYS_TELEMETRY]</span>
+          <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0 }}>LLAMA 3.3 70B ACTIVE</p>
         </div>
       </div>
 
-      <div className="holo-panel floating-panel" style={{
+      <div className="hud-panel hud-panel-amber" style={{
         position: 'absolute',
-        bottom: '70px',
-        right: '-40px',
-        padding: '12px 18px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        fontSize: '0.8rem',
-        animationDelay: '2s'
-      }}>
-        <Activity size={18} color="#8A2BE2" />
-        <div>
-          <strong style={{ color: '#c084fc' }}>12,450+ STUDENTS</strong>
-          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Career DNA Synchronized</p>
-        </div>
-      </div>
-
-      <div className="holo-panel floating-panel" style={{
-        position: 'absolute',
-        top: '180px',
+        bottom: '40px',
         right: '-30px',
         padding: '10px 14px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        fontSize: '0.75rem',
-        animationDelay: '1s'
+        fontSize: '0.75rem'
       }}>
-        <TrendingUp size={16} color="#10b981" />
-        <span style={{ color: '#10b981', fontWeight: 700 }}>94.2% Placement Match</span>
+        <ShieldAlert size={16} color="var(--hud-amber)" />
+        <div>
+          <span style={{ color: 'var(--hud-amber-bright)', fontWeight: 700, letterSpacing: '1px' }}>[GAP_WARNING]</span>
+          <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: 0 }}>4 TARGET ROLE SKILL GAPS</p>
+        </div>
+      </div>
+
+      <div className="hud-panel" style={{
+        position: 'absolute',
+        top: '170px',
+        right: '-40px',
+        padding: '8px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontSize: '0.75rem'
+      }}>
+        <Target size={14} color="var(--hud-cyan-bright)" />
+        <span style={{ color: 'var(--hud-cyan-bright)', fontWeight: 700 }}>PLACEMENT SCORE: 78.5%</span>
       </div>
 
     </div>

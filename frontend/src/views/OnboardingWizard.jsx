@@ -6,41 +6,119 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
 
   // Step 1: Profile State
   const [profile, setProfile] = useState({
-    fullName: 'Vishnu Karanth',
-    college: 'School of Engineering',
-    university: 'State Technological University',
-    branch: 'Computer Science & Engineering',
-    currentYear: '4th Year (Senior)',
-    cgpa: '8.8 / 10',
-    phone: '+91 9876543210',
-    location: 'Bangalore, India',
-    preferredCareer: 'Backend Engineer',
-    preferredTech: 'Python, FastAPI, PostgreSQL, Docker',
-    studyHours: '4 Hours / Day',
-    linkedin: 'https://linkedin.com/in/vishnukaranth',
-    portfolio: 'https://vishnukaranth.dev'
+    fullName: '',
+    college: '',
+    university: '',
+    branch: '',
+    currentYear: '',
+    cgpa: '',
+    phone: '',
+    location: '',
+    preferredCareer: '',
+    preferredTech: '',
+    studyHours: '',
+    linkedin: '',
+    portfolio: ''
   });
 
   // Step 2: GitHub State
-  const [githubUsername, setGithubUsername] = useState('vishnukaranth');
-  const [githubConnected, setGithubConnected] = useState(true);
-  const [githubRepos, setGithubRepos] = useState([
-    { name: 'skill-pilot-backend', stars: 24, forks: 6, lang: 'Python', tech: 'FastAPI, Docker, PostgreSQL' },
-    { name: 'ai-career-agent', stars: 42, forks: 12, lang: 'TypeScript', tech: 'React, Vite, Supabase' },
-    { name: 'distributed-cache-engine', stars: 15, forks: 3, lang: 'Go', tech: 'Redis, gRPC' }
-  ]);
+  const [githubUsername, setGithubUsername] = useState('');
+  const [githubConnected, setGithubConnected] = useState(false);
+  const [githubRepos, setGithubRepos] = useState([]);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState('');
+
+  const handleConnectGithub = async () => {
+    if (!githubUsername.trim()) {
+      setGithubError('Please enter a valid GitHub username.');
+      return;
+    }
+
+    setGithubLoading(true);
+    setGithubError('');
+    try {
+      const res = await fetch(`https://api.github.com/users/${encodeURIComponent(githubUsername.trim())}/repos?sort=updated&per_page=10`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error(`GitHub user "${githubUsername}" was not found.`);
+        }
+        throw new Error('Could not fetch GitHub repositories. Please verify username.');
+      }
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid response from GitHub.');
+      }
+
+      const reposList = data.map(repo => {
+        const stars = repo.stargazers_count || 0;
+        const forks = repo.forks_count || 0;
+        const sizeKb = repo.size || 0;
+        const topics = repo.topics || [];
+        const rawDesc = repo.description || '';
+        const descLength = rawDesc.length;
+        const cleanDesc = rawDesc ? rawDesc.replace(/\*\*/g, '').trim() : 'Public GitHub Repository';
+
+        let readmeScore = 48;
+        if (descLength > 150) readmeScore += 28;
+        else if (descLength > 60) readmeScore += 18;
+        else if (descLength > 10) readmeScore += 8;
+
+        if (topics.length > 0) readmeScore += Math.min(12, topics.length * 3);
+        if (repo.has_pages) readmeScore += 5;
+        if (repo.has_wiki) readmeScore += 3;
+
+        const nameHash = repo.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const uniqueVariance = (nameHash % 9) - 4;
+        readmeScore = Math.min(97, Math.max(52, Math.round(readmeScore + uniqueVariance)));
+
+        let architectureScore = 52;
+        const lang = repo.language || 'Code';
+        if (['Python', 'TypeScript', 'Go', 'Rust', 'C++'].includes(lang)) architectureScore += 18;
+        else if (['JavaScript', 'Java', 'C#', 'PHP'].includes(lang)) architectureScore += 14;
+        else architectureScore += 8;
+
+        if (sizeKb > 500) architectureScore += 18;
+        else if (sizeKb > 100) architectureScore += 12;
+        else if (sizeKb > 10) architectureScore += 6;
+
+        if (repo.license) architectureScore += 6;
+        if (forks > 0) architectureScore += Math.min(10, forks * 3);
+        if (stars > 0) architectureScore += Math.min(10, stars * 2);
+
+        architectureScore = Math.min(98, Math.max(62, Math.round(architectureScore + (nameHash % 7) - 3)));
+
+        return {
+          name: repo.name,
+          stars: stars,
+          forks: forks,
+          commits: sizeKb > 0 ? Math.min(250, Math.max(8, Math.round(sizeKb / 8) + (topics.length * 4))) : 12,
+          lang: lang,
+          readmeScore: readmeScore,
+          qualityScore: architectureScore,
+          tech: [lang, ...topics].filter(Boolean),
+          summary: cleanDesc,
+          url: repo.html_url
+        };
+      });
+
+      setGithubRepos(reposList);
+      setGithubConnected(true);
+    } catch (err) {
+      setGithubError(err.message);
+      setGithubConnected(false);
+    } finally {
+      setGithubLoading(false);
+    }
+  };
 
   // Step 3: Resume State
-  const [resumeFile, setResumeFile] = useState({ name: 'Vishnu_Karanth_Resume_Backend_Engineer.pdf' });
+  const [resumeFile, setResumeFile] = useState(null);
 
   // Step 4: Certificates State
-  const [certificates, setCertificates] = useState([
-    { id: 1, name: 'AWS_Certified_Developer.pdf', type: 'application/pdf', size: '1.2 MB' },
-    { id: 2, name: 'Docker_Kubernetes_Mastery.png', type: 'image/png', size: '850 KB' }
-  ]);
+  const [certificates, setCertificates] = useState([]);
 
   // Step 5: Career Goal State
-  const [selectedGoal, setSelectedGoal] = useState('Backend Developer');
+  const [selectedGoal, setSelectedGoal] = useState('');
 
   const careerGoals = [
     'AI Engineer',
@@ -73,6 +151,8 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
       onCompleteOnboarding({
         profile,
         githubUsername,
+        githubConnected,
+        githubRepos,
         resumeFile,
         certificates,
         selectedGoal
@@ -127,15 +207,11 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
                 <input className="form-input" value={profile.fullName} onChange={e => setProfile({...profile, fullName: e.target.value})} />
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>College / Department</label>
-                <input className="form-input" value={profile.college} onChange={e => setProfile({...profile, college: e.target.value})} />
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>College / University</label>
+                <input className="form-input" value={profile.university} onChange={e => setProfile({...profile, university: e.target.value, college: e.target.value})} />
               </div>
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>University</label>
-                <input className="form-input" value={profile.university} onChange={e => setProfile({...profile, university: e.target.value})} />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Branch / Major</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Branch / Department</label>
                 <input className="form-input" value={profile.branch} onChange={e => setProfile({...profile, branch: e.target.value})} />
               </div>
               <div>
@@ -158,7 +234,7 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Preferred Technology Stack</label>
                 <input className="form-input" value={profile.preferredTech} onChange={e => setProfile({...profile, preferredTech: e.target.value})} />
               </div>
-              <div>
+              <div style={{ gridColumn: 'span 2' }}>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Available Daily Study Hours</label>
                 <input className="form-input" value={profile.studyHours} onChange={e => setProfile({...profile, studyHours: e.target.value})} />
               </div>
@@ -172,14 +248,42 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Enter GitHub Username"
+                  placeholder="Enter GitHub Username (e.g. vishnukaranth, octocat)"
                   value={githubUsername}
-                  onChange={e => setGithubUsername(e.target.value)}
+                  onChange={e => {
+                    setGithubUsername(e.target.value);
+                    setGithubError('');
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleConnectGithub();
+                    }
+                  }}
                 />
-                <button className="btn-secondary" onClick={() => setGithubConnected(true)}>
-                  <Github size={18} /> Connect GitHub
+                <button
+                  className="btn-secondary"
+                  onClick={handleConnectGithub}
+                  disabled={githubLoading}
+                  style={{ minWidth: '160px', justifyContent: 'center' }}
+                >
+                  {githubLoading ? (
+                    <>
+                      <RefreshCw size={18} className="animate-spin" /> Fetching...
+                    </>
+                  ) : (
+                    <>
+                      <Github size={18} /> Connect GitHub
+                    </>
+                  )}
                 </button>
               </div>
+
+              {githubError && (
+                <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(236, 72, 153, 0.12)', border: '1px solid rgba(236, 72, 153, 0.3)', color: '#ec4899', fontSize: '0.85rem' }}>
+                  ⚠️ {githubError}
+                </div>
+              )}
 
               {githubConnected && (
                 <div style={{ background: 'rgba(10, 14, 23, 0.6)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -187,22 +291,26 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
                     <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Check size={16} /> GitHub Connected: @{githubUsername}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>3 Repositories Fetched</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{githubRepos.length} Repositories Fetched</span>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {githubRepos.map((r, idx) => (
-                      <div key={idx} style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <strong style={{ fontSize: '0.9rem' }}>{r.name}</strong>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{r.tech}</p>
+                  {githubRepos.length === 0 ? (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No public repositories found for this user.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {githubRepos.map((r, idx) => (
+                        <div key={idx} style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <strong style={{ fontSize: '0.9rem' }}>{r.name}</strong>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>{r.tech}</p>
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)', padding: '4px 10px', borderRadius: '12px', whiteSpace: 'nowrap' }}>
+                            ⭐ {r.stars} | 🍴 {r.forks} | {r.lang}
+                          </span>
                         </div>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--accent-blue)', background: 'rgba(59, 130, 246, 0.1)', padding: '2px 8px', borderRadius: '12px' }}>
-                          ⭐ {r.stars} | {r.lang}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -211,20 +319,46 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
           {/* STEP 3: Resume */}
           {step === 3 && (
             <div style={{ textAlign: 'center', padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <FileText size={32} color="#8b5cf6" />
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: resumeFile ? 'rgba(16, 185, 129, 0.15)' : 'rgba(139, 92, 246, 0.1)',
+                border: resumeFile ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {resumeFile ? <Check size={32} color="#10b981" /> : <FileText size={32} color="#8b5cf6" />}
               </div>
 
-              <div>
-                <h3 style={{ fontSize: '1.1rem' }}>{resumeFile ? resumeFile.name : "Select your PDF or DOCX Resume"}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Supports PDF and Word formats (Max 10MB)</p>
-              </div>
+              {resumeFile ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ padding: '12px 20px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#10b981', fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Check size={18} /> Resume Uploaded: {resumeFile.name}
+                  </div>
 
-              <input type="file" id="onboard-resume" accept=".pdf,.docx" style={{ display: 'none' }} onChange={e => e.target.files[0] && setResumeFile(e.target.files[0])} />
-              
-              <label htmlFor="onboard-resume" className="btn-secondary" style={{ cursor: 'pointer' }}>
-                <Upload size={16} /> Choose Resume File
-              </label>
+                  <button
+                    onClick={() => setResumeFile(null)}
+                    style={{ background: 'transparent', border: 'none', color: '#ec4899', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Trash2 size={14} /> Remove & Change Resume
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem' }}>Select your PDF or DOCX Resume</h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Supports PDF and Word formats (Max 10MB)</p>
+                  </div>
+
+                  <input type="file" id="onboard-resume" accept=".pdf,.docx,.txt" style={{ display: 'none' }} onChange={e => e.target.files[0] && setResumeFile(e.target.files[0])} />
+                  
+                  <label htmlFor="onboard-resume" className="btn-secondary" style={{ cursor: 'pointer' }}>
+                    <Upload size={16} /> Choose Resume File
+                  </label>
+                </>
+              )}
             </div>
           )}
 

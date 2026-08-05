@@ -14,18 +14,18 @@ import {
   Bot, 
   Trophy, 
   Settings, 
-  LogOut, 
-  Cpu 
+  LogOut 
 } from 'lucide-react';
+import SkillSyncLogo from './SkillSyncLogo';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'career_dna', label: 'Career DNA', icon: Dna },
   { id: 'resume', label: 'Resume Intelligence', icon: FileText },
   { id: 'github', label: 'GitHub Intelligence', icon: Github },
-  { id: 'projects', label: 'Projects', icon: FolderGit2 },
+  { id: 'projects', label: 'Recommended Projects', icon: FolderGit2 },
   { id: 'skill_gap', label: 'Skill Gap', icon: Target },
-  { id: 'readiness', label: 'Career Readiness', icon: ShieldCheck },
+  { id: 'readiness', label: 'Placement Score', icon: ShieldCheck },
   { id: 'roadmap', label: 'Learning Roadmap', icon: Map },
   { id: 'missions', label: 'Weekly AI Missions', icon: CheckSquare },
   { id: 'certificates', label: 'Certificates', icon: Award },
@@ -39,35 +39,21 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
   return (
     <aside style={{
       width: '260px',
-      background: 'rgba(13, 17, 26, 0.95)',
-      borderRight: '1px solid var(--border-color)',
+      background: 'var(--bg-panel)',
+      borderRight: '1px solid var(--border-cyan)',
       padding: '20px 14px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '24px',
+      gap: '20px',
       height: '100vh',
       position: 'sticky',
       top: 0,
-      zIndex: 20
+      zIndex: 20,
+      fontFamily: "'Share Tech Mono', monospace"
     }}>
-      {/* Brand Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '6px' }}>
-        <div style={{
-          width: '38px',
-          height: '38px',
-          borderRadius: '10px',
-          background: 'var(--accent-gradient)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: 'var(--accent-glow)'
-        }}>
-          <Cpu color="#fff" size={22} />
-        </div>
-        <div>
-          <h2 style={{ fontSize: '1.2rem', lineHeight: '1.1' }}>SkillSync <span className="gradient-text">AI</span></h2>
-          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Career Operating System</p>
-        </div>
+      {/* Brand Header with New SkillSync AI Logo */}
+      <div style={{ paddingLeft: '4px', paddingTop: '4px' }}>
+        <SkillSyncLogo size={36} showText={true} />
       </div>
 
       {/* Navigation Links */}
@@ -79,50 +65,62 @@ export default function Sidebar({ activeTab, setActiveTab, onLogout }) {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              className={isActive ? 'hud-panel' : ''}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                padding: '10px 12px',
-                borderRadius: 'var(--radius-md)',
-                background: isActive ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
-                color: isActive ? '#fff' : 'var(--text-secondary)',
+                padding: '9px 12px',
+                background: isActive ? 'rgba(0, 229, 255, 0.12)' : 'transparent',
+                color: isActive ? 'var(--hud-cyan-bright)' : 'var(--text-secondary)',
                 border: '1px solid',
-                borderColor: isActive ? 'rgba(59, 130, 246, 0.35)' : 'transparent',
-                fontWeight: isActive ? 600 : 400,
-                fontSize: '0.875rem',
+                borderLeft: isActive ? '3px solid var(--hud-cyan-bright)' : '1px solid transparent',
+                borderColor: isActive ? 'var(--hud-cyan-bright)' : 'transparent',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                letterSpacing: '1px',
                 cursor: 'pointer',
                 textAlign: 'left',
-                transition: 'var(--transition)'
+                textTransform: 'uppercase',
+                fontFamily: "'Share Tech Mono', monospace",
+                transition: 'var(--transition-fast)'
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.borderLeft = '3px solid rgba(0, 229, 255, 0.5)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.borderLeft = '1px solid transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.background = 'transparent';
+                }
               }}
             >
-              <Icon size={16} color={isActive ? '#3b82f6' : 'var(--text-muted)'} />
+              <Icon size={15} color={isActive ? 'var(--hud-cyan-bright)' : 'var(--text-muted)'} />
               <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Logout Action */}
+      {/* Logout Action Button */}
       <button
         onClick={onLogout}
+        className="btn-hud-amber"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
+          width: '100%',
+          justifyContent: 'center',
+          fontSize: '0.82rem',
           padding: '10px 12px',
-          borderRadius: 'var(--radius-md)',
-          background: 'rgba(236, 72, 153, 0.08)',
-          color: '#ec4899',
-          border: '1px solid rgba(236, 72, 153, 0.2)',
-          fontWeight: 600,
-          fontSize: '0.85rem',
-          cursor: 'pointer',
-          marginTop: 'auto'
+          fontFamily: "'Share Tech Mono', monospace"
         }}
       >
-        <LogOut size={16} />
-        <span>Log Out</span>
+        <LogOut size={15} />
+        <span>LOG OUT</span>
       </button>
     </aside>
   );

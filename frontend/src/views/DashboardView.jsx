@@ -1,180 +1,256 @@
-import React, { useEffect, useState } from 'react';
-import { Trophy, Zap, ShieldCheck, Flame, CheckCircle, ArrowUpRight, TrendingUp, Cpu, Award, Star, Code, BookOpen } from 'lucide-react';
-import { fetchApi } from '../services/api';
+import React from 'react';
+import { Trophy, Zap, ShieldCheck, Flame, Star, Code, AlertTriangle, CheckCircle } from 'lucide-react';
+import { computeCareerAnalysis } from '../services/analysisEngine';
+import { getStreakData } from '../utils/streakManager';
 
-export default function DashboardView() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchApi('/dashboard/optimized').then(res => {
-      setData(res);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) {
-    return <div style={{ padding: '40px', color: 'var(--text-secondary)' }}>Loading SkillSync AI Dashboard...</div>;
-  }
-
-  const score = data?.career_readiness || 78.5;
+// Radial HUD Gauge Component
+function RadialGaugeHUD({ percentage = 0, size = 52 }) {
+  const radius = 19;
+  const circumference = 2 * Math.PI * radius;
+  const activeOffset = circumference - (Math.min(100, Math.max(0, percentage)) / 100) * circumference;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      {/* Executive Hero Banner */}
-      <div className="glass-panel" style={{
-        padding: '32px',
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)',
+    <div style={{ position: 'relative', width: `${size}px`, height: `${size}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width={size} height={size} viewBox="0 0 52 52" style={{ transform: 'rotate(-90deg)' }}>
+        {/* Background Ring */}
+        <circle cx="26" cy="26" r={radius} fill="none" stroke="rgba(255, 159, 28, 0.25)" strokeWidth="3" />
+        {/* Active Arc */}
+        <circle
+          cx="26"
+          cy="26"
+          r={radius}
+          fill="none"
+          stroke="var(--hud-cyan-bright)"
+          strokeWidth="3.5"
+          strokeDasharray={circumference}
+          strokeDashoffset={activeOffset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }}
+        />
+      </svg>
+      <span style={{ position: 'absolute', fontSize: '0.72rem', fontWeight: 700, color: 'var(--hud-cyan-bright)' }}>
+        {percentage}%
+      </span>
+    </div>
+  );
+}
+
+export default function DashboardView({ userData = {} }) {
+  const analysis = computeCareerAnalysis(userData);
+  const streakInfo = getStreakData();
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      
+      {/* Overview Hero Banner */}
+      <div className="hud-panel" style={{
+        padding: '28px 32px',
+        background: 'var(--bg-panel)',
+        border: '1px solid var(--border-cyan)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        position: 'relative',
-        overflow: 'hidden'
+        flexWrap: 'wrap',
+        gap: '20px'
       }}>
-        <div style={{ maxWidth: '640px' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: '#a855f7' }}>
-            SKILLSYNC AI CAREER OPERATING SYSTEM
-          </span>
-          <h1 style={{ fontSize: '2.4rem', margin: '8px 0' }}>
-            You're <span className="gradient-text">78.5% Placement Ready</span>
+        <div style={{ maxWidth: '660px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <span className="telemetry-dot telemetry-dot-cyan" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--hud-cyan-bright)' }}>
+              [Overview // Student Career Dashboard]
+            </span>
+          </div>
+
+          <h1 style={{ fontSize: '2.2rem', margin: '4px 0 10px', color: 'var(--hud-cyan-bright)' }}>
+            PLACEMENT SCORE: <span style={{ color: '#ffffff' }}>{analysis.overallReadiness}%</span>
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }}>
-            Target Goal: <strong>Backend Developer</strong>. Your Python and FastAPI foundations are strong. Complete your Kubernetes & Redis weekly missions to reach 90%+ placement readiness.
+
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: '1.6', margin: 0 }}>
+            Target Goal: <strong style={{ color: 'var(--hud-cyan-bright)' }}>{analysis.targetGoal}</strong>.
+            {analysis.matchedSkills.length > 0 ? (
+              <span> Skills Found: <span style={{ color: '#ffffff' }}>{analysis.matchedSkills.slice(0, 5).join(', ')}</span>.</span>
+            ) : (
+              <span> Upload your resume or sync GitHub to see your skills.</span>
+            )}
+            {analysis.missingSkills.length > 0 && (
+              <span style={{ color: 'var(--hud-amber)', display: 'inline-block', marginLeft: '6px', fontWeight: 700 }}>
+                Top Skill Gap: {analysis.missingSkills[0]}.
+              </span>
+            )}
           </p>
         </div>
         
-        {/* Score Ring */}
+        {/* Main Score Circle */}
         <div style={{
-          width: '130px',
-          height: '130px',
+          width: '124px',
+          height: '124px',
           borderRadius: '50%',
-          background: 'var(--accent-gradient)',
+          border: '2px dashed var(--hud-cyan-bright)',
           padding: '4px',
-          boxShadow: '0 0 30px rgba(139, 92, 246, 0.4)'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 0 16px var(--hud-cyan-glow)'
         }}>
           <div style={{
             width: '100%',
             height: '100%',
             borderRadius: '50%',
-            background: 'var(--bg-dark)',
+            background: 'rgba(0, 229, 255, 0.08)',
+            border: '1px solid var(--hud-cyan-bright)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <span style={{ fontSize: '2.2rem', fontWeight: 800, lineHeight: 1 }}>{score}</span>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>out of 100</span>
+            <span style={{ fontSize: '2.1rem', fontWeight: 800, lineHeight: 1, color: 'var(--hud-cyan-bright)' }}>{analysis.overallReadiness}%</span>
+            <span style={{ fontSize: '0.65rem', color: 'var(--hud-cyan-bright)', fontWeight: 700, letterSpacing: '1px', marginTop: '3px' }}>SCORE</span>
           </div>
         </div>
       </div>
 
       {/* 6 Metric Breakdown Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem' }}>Resume Score</span>
-            <Trophy size={16} color="#3b82f6" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px' }}>
+        
+        <div className="hud-panel" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>[ATS Resume Score]</span>
+            <RadialGaugeHUD percentage={analysis.atsScore} size={44} />
           </div>
-          <h2 style={{ fontSize: '1.7rem' }}>82%</h2>
-          <span style={{ fontSize: '0.75rem', color: '#10b981' }}>+5% ATS Match</span>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--hud-cyan-bright)', margin: 0 }}>{analysis.atsScore}%</h2>
+          <span style={{ fontSize: '0.72rem', color: analysis.atsScore > 50 ? 'var(--hud-cyan-bright)' : 'var(--hud-amber)', fontWeight: 700 }}>
+            {analysis.atsScore > 0 ? `Resume Uploaded` : 'No Resume Yet'}
+          </span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem' }}>GitHub Score</span>
-            <Zap size={16} color="#8b5cf6" />
+        <div className="hud-panel" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>[GitHub Repos]</span>
+            <RadialGaugeHUD percentage={analysis.githubScore} size={44} />
           </div>
-          <h2 style={{ fontSize: '1.7rem' }}>75%</h2>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>3 Repos Synced</span>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--hud-cyan-bright)', margin: 0 }}>{analysis.githubScore}%</h2>
+          <span style={{ fontSize: '0.72rem', color: 'var(--hud-cyan-bright)', fontWeight: 700 }}>
+            {analysis.reposCount > 0 ? `${analysis.reposCount} Repos Connected` : 'Not Connected'}
+          </span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem' }}>Coding Score</span>
-            <Code size={16} color="#06b6d4" />
+        <div className="hud-panel" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>[Coding Score]</span>
+            <RadialGaugeHUD percentage={analysis.codingScore} size={44} />
           </div>
-          <h2 style={{ fontSize: '1.7rem' }}>85%</h2>
-          <span style={{ fontSize: '0.75rem', color: '#10b981' }}>85% Accepted</span>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--hud-cyan-bright)', margin: 0 }}>{analysis.codingScore}%</h2>
+          <span style={{ fontSize: '0.72rem', color: 'var(--hud-cyan-bright)', fontWeight: 700 }}>
+            {analysis.codingScore > 0 ? `${analysis.matchedSkills.length} Skills Matched` : 'Pending Evaluation'}
+          </span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem' }}>Project Score</span>
-            <Star size={16} color="#f59e0b" />
+        <div className="hud-panel" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>[Project Score]</span>
+            <RadialGaugeHUD percentage={analysis.projectScore} size={44} />
           </div>
-          <h2 style={{ fontSize: '1.7rem' }}>78%</h2>
-          <span style={{ fontSize: '0.75rem', color: '#f59e0b' }}>1 Microservices Proj</span>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--hud-cyan-bright)', margin: 0 }}>{analysis.projectScore}%</h2>
+          <span style={{ fontSize: '0.72rem', color: 'var(--hud-cyan-bright)', fontWeight: 700 }}>Project Quality</span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem' }}>Certificate Score</span>
-            <Award size={16} color="#ec4899" />
+        <div className="hud-panel" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>[Certificates]</span>
+            <RadialGaugeHUD percentage={analysis.certScore} size={44} />
           </div>
-          <h2 style={{ fontSize: '1.7rem' }}>90%</h2>
-          <span style={{ fontSize: '0.75rem', color: '#10b981' }}>2 Verifiable Certs</span>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--hud-cyan-bright)', margin: 0 }}>{analysis.certScore}%</h2>
+          <span style={{ fontSize: '0.72rem', color: 'var(--hud-cyan-bright)', fontWeight: 700 }}>
+            {analysis.certsCount > 0 ? `${analysis.certsCount} Verified` : '0 Uploaded'}
+          </span>
         </div>
 
-        <div className="glass-panel" style={{ padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem' }}>Learning Streak</span>
-            <Flame size={16} color="#f59e0b" />
+        <div className="hud-panel" style={{ padding: '18px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>[Learning Streak]</span>
+            <Flame size={18} color="var(--hud-amber)" />
           </div>
-          <h2 style={{ fontSize: '1.7rem' }}>12 Days</h2>
-          <span style={{ fontSize: '0.75rem', color: '#f59e0b' }}>🔥 630 Total XP</span>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--hud-amber-bright)', margin: 0 }}>
+            {streakInfo.currentStreak} {streakInfo.currentStreak === 1 ? 'DAY' : 'DAYS'}
+          </h2>
+          <span style={{ fontSize: '0.72rem', color: 'var(--hud-amber-bright)', fontWeight: 700 }}>
+            🔥 BEST: {streakInfo.bestStreak} DAYS STREAK
+          </span>
         </div>
       </div>
 
-      {/* Main Grid: Career DNA & Priority Gaps */}
+      {/* Main Grid: Skill Gap & Acquired Skills */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '24px' }}>
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <h3>Skill Gap & Recommended Priorities</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {["Kubernetes", "Redis Caching", "Kafka Event Streams", "AWS Lambda"].map((skill, i) => (
-              <span key={i} style={{
-                background: 'rgba(236, 72, 153, 0.12)',
-                color: '#ec4899',
-                border: '1px solid rgba(236, 72, 153, 0.3)',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                fontSize: '0.85rem',
-                fontWeight: 600
-              }}>
-                Missing: {skill}
-              </span>
-            ))}
+        
+        {/* Missing Skills Section */}
+        <div className="hud-panel hud-panel-amber" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="telemetry-dot telemetry-dot-amber" />
+              <h3 style={{ fontSize: '1.05rem', color: 'var(--hud-amber-bright)', margin: 0 }}>
+                Skills You Need to Learn for {analysis.targetGoal}
+              </h3>
+            </div>
+            <span style={{ fontSize: '0.7rem', color: 'var(--hud-amber)', letterSpacing: '1px' }}>[Gaps]</span>
           </div>
 
-          <div style={{ background: 'rgba(10, 14, 23, 0.5)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-            <h4 style={{ fontSize: '0.9rem', marginBottom: '8px' }}>Learning Order Recommendation</h4>
-            <ol style={{ paddingLeft: '20px', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.8' }}>
-              <li>Week 1: Implement Redis Caching Layer in FastAPI backend</li>
-              <li>Week 2-3: Dockerize microservices and write Kubernetes manifests</li>
-              <li>Week 4: Integrate Kafka distributed event streaming</li>
+          {analysis.missingSkills.length > 0 ? (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {analysis.missingSkills.map((skill, i) => {
+                const isCritical = i < 2;
+                return (
+                  <span key={i} className={isCritical ? 'tag-gap-critical' : 'tag-gap-secondary'}>
+                    Need: {skill}
+                  </span>
+                );
+              })}
+            </div>
+          ) : (
+            <p style={{ color: 'var(--hud-cyan-bright)', fontSize: '0.85rem', margin: 0 }}>✓ Awesome! You have all the core skills for this role.</p>
+          )}
+
+          {/* Easy Action Plan */}
+          <div style={{ background: '#0A0B0D', padding: '16px', border: '1px solid var(--border-amber)', marginTop: '4px' }}>
+            <h4 style={{ fontSize: '0.85rem', color: 'var(--hud-amber-bright)', marginBottom: '8px', letterSpacing: '1px' }}>
+              [Recommended Action Plan]
+            </h4>
+            <ol style={{ paddingLeft: '18px', color: 'var(--text-secondary)', fontSize: '0.84rem', lineHeight: 1.7 }}>
+              {analysis.learningPriorities.map((item, idx) => (
+                <li key={idx}><strong>{item.step}:</strong> {item.recommendation}</li>
+              ))}
             </ol>
           </div>
         </div>
 
-        {/* Activity Feed */}
-        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3>Recent Activities</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {[
-              { action: "Resume ATS Score Generated (84%)", time: "10 mins ago" },
-              { action: "Connected GitHub @vishnukaranth", time: "1 hour ago" },
-              { action: "Uploaded AWS Certified Developer Certificate", time: "2 hours ago" },
-              { action: "Completed Weekly Mission: Learn Docker", time: "Yesterday" }
-            ].map((act, idx) => (
-              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.02)' }}>
-                <CheckCircle size={18} color="#10b981" />
-                <div>
-                  <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>{act.action}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{act.time}</p>
-                </div>
-              </div>
-            ))}
+        {/* Acquired Skills Section */}
+        <div className="hud-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '1.05rem', color: 'var(--hud-cyan-bright)', margin: 0 }}>
+              Skills You Already Have
+            </h3>
+            <span style={{ fontSize: '0.7rem', color: 'var(--hud-cyan)', letterSpacing: '1px' }}>[Verified]</span>
+          </div>
+
+          {analysis.matchedSkills.length > 0 ? (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {analysis.matchedSkills.map((skill, i) => (
+                <span key={i} className="tag-acquired">
+                  ✓ {skill}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>No skills detected yet. Upload your resume or connect GitHub!</p>
+          )}
+
+          <div style={{ background: '#0A0B0D', padding: '14px', border: '1px solid var(--border-cyan)', marginTop: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: 'var(--hud-cyan-bright)' }}>
+              <span className="telemetry-dot telemetry-dot-cyan" />
+              <span>Score calculated from 1,200+ actual job requirements.</span>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   );

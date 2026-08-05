@@ -18,33 +18,15 @@ export default function SciFiBackground() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Mouse coordinates
-    let mouse = { x: width / 2, y: height / 2 };
-    const handleMouseMove = (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
+    let radarAngle = 0;
 
-    // Matrix particles & hex streams
-    const chars = '01ABCDEF01010101010101';
-    const numParticles = 75;
-    const particles = Array.from({ length: numParticles }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      speed: 0.5 + Math.random() * 1.5,
-      size: 10 + Math.random() * 6,
-      text: chars[Math.floor(Math.random() * chars.length)],
-      opacity: 0.2 + Math.random() * 0.6,
-      isHex: Math.random() > 0.6,
-      hexVal: `0x${Math.floor(Math.random() * 255).toString(16).toUpperCase()}`
-    }));
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
 
-    // Draw grid lines
-    const drawGrid = (t) => {
-      ctx.strokeStyle = 'rgba(0, 229, 255, 0.04)';
+      // Tactical HUD Grid
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.05)';
       ctx.lineWidth = 1;
-      const gridSize = 60;
+      const gridSize = 50;
 
       for (let x = 0; x < width; x += gridSize) {
         ctx.beginPath();
@@ -58,34 +40,31 @@ export default function SciFiBackground() {
         ctx.lineTo(width, y);
         ctx.stroke();
       }
-    };
 
-    let time = 0;
-    const render = () => {
-      time += 0.01;
-      ctx.clearRect(0, 0, width, height);
+      // Radar Sweep Line
+      radarAngle += 0.005;
+      const cx = width / 2;
+      const cy = height / 2;
+      const radius = Math.max(width, height) * 0.8;
 
-      // Background radial gradient
-      const bgGrad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 600);
-      bgGrad.addColorStop(0, 'rgba(0, 229, 255, 0.07)');
-      bgGrad.addColorStop(0.5, 'rgba(138, 43, 226, 0.04)');
-      bgGrad.addColorStop(1, 'rgba(3, 5, 9, 0)');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
+      const gradient = ctx.createConicGradient(radarAngle, cx, cy);
+      gradient.addColorStop(0, 'rgba(0, 229, 255, 0.08)');
+      gradient.addColorStop(0.1, 'rgba(0, 229, 255, 0.02)');
+      gradient.addColorStop(0.2, 'rgba(0, 0, 0, 0)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
-      drawGrid(time);
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
 
-      // Render matrix code streams
-      ctx.font = '12px "JetBrains Mono", monospace';
-      particles.forEach((p) => {
-        p.y += p.speed;
-        if (p.y > height) {
-          p.y = -20;
-          p.x = Math.random() * width;
-        }
-
-        ctx.fillStyle = p.isHex ? 'rgba(138, 43, 226, ' + p.opacity + ')' : 'rgba(0, 229, 255, ' + p.opacity + ')';
-        ctx.fillText(p.isHex ? p.hexVal : p.text, p.x, p.y);
+      // Topographic tactical circles
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.03)';
+      ctx.lineWidth = 1;
+      [200, 400, 600, 800].forEach((r) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
       });
 
       animationFrameId = requestAnimationFrame(render);
@@ -95,7 +74,6 @@ export default function SciFiBackground() {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
