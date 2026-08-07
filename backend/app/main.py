@@ -24,11 +24,20 @@ logger = get_logger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     logger.info("skillpilot_starting", environment=settings.environment)
-    await get_redis_client()
-    start_scheduler()
+    try:
+        await get_redis_client()
+    except Exception as exc:
+        logger.warning("redis_startup_skipped", error=str(exc))
+    try:
+        start_scheduler()
+    except Exception as exc:
+        logger.warning("scheduler_startup_skipped", error=str(exc))
     yield
-    stop_scheduler()
-    await close_redis()
+    try:
+        stop_scheduler()
+        await close_redis()
+    except Exception:
+        pass
     logger.info("skillpilot_stopping")
 
 
