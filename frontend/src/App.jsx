@@ -26,12 +26,14 @@ import SettingsView from './views/SettingsView';
 import { loadUserAnalysis, saveUserAnalysis } from './services/analysisEngine';
 
 export default function App() {
+  const [userData, setUserData] = useState(() => loadUserAnalysis() || {});
+  
   // Application Stage: 'landing' | 'auth' | 'onboarding' | 'processing' | 'dashboard'
   const [stage, setStage] = useState('landing');
+  
   const [authMode, setAuthMode] = useState('signup');
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [userData, setUserData] = useState(() => loadUserAnalysis() || {});
 
   const handleStartOnboarding = () => {
     setAuthMode('signup');
@@ -41,6 +43,10 @@ export default function App() {
   const handleStartLogin = () => {
     setAuthMode('login');
     setStage('auth');
+  };
+
+  const handleOpenDashboard = () => {
+    setStage('dashboard');
   };
 
   const handleAuthSuccess = (authenticatedUser, isLogin) => {
@@ -117,7 +123,7 @@ export default function App() {
   const renderSubView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView userData={userData} />;
+        return <DashboardView userData={userData} onUpdateUserData={handleUpdateUserData} />;
       case 'career_dna':
         return <CareerDnaView userData={userData} />;
       case 'resume':

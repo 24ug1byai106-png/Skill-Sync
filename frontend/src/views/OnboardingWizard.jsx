@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Github, FileText, Award, Target, ArrowRight, ArrowLeft, Upload, Check, Trash2, RefreshCw } from 'lucide-react';
+import { User, Github, FileText, Award, Target, ArrowRight, ArrowLeft, Upload, Check, Trash2, RefreshCw, Globe, ExternalLink } from 'lucide-react';
 
 export default function OnboardingWizard({ onCompleteOnboarding }) {
   const [step, setStep] = useState(1);
@@ -111,7 +111,7 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
     }
   };
 
-  // Step 3: Resume State
+  // Step 3: Resume State & Portfolio Link State
   const [resumeFile, setResumeFile] = useState(null);
 
   // Step 4: Certificates State
@@ -120,18 +120,34 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
   // Step 5: Career Goal State
   const [selectedGoal, setSelectedGoal] = useState('');
 
+  const [goalCategory, setGoalCategory] = useState('All');
+
   const careerGoals = [
-    'AI Engineer',
-    'Machine Learning Engineer',
-    'Software Engineer',
-    'Backend Developer',
-    'Frontend Developer',
-    'Full Stack Developer',
-    'DevOps Engineer',
-    'Cloud Engineer',
-    'Cyber Security Engineer',
-    'Data Scientist'
+    { title: 'AI Engineer', category: 'AI & Frontier Tech', isNew: false },
+    { title: 'Forward Deployed Engineer', category: 'Enterprise & Senior', isNew: true },
+    { title: 'AI Solutions Architect', category: 'AI & Frontier Tech', isNew: true },
+    { title: 'Machine Learning Engineer', category: 'AI & Frontier Tech', isNew: false },
+    { title: 'LLM Systems Specialist', category: 'AI & Frontier Tech', isNew: true },
+    { title: 'MLOps Engineer', category: 'AI & Frontier Tech', isNew: true },
+    { title: 'Software Engineer', category: 'Software & Dev', isNew: false },
+    { title: 'Staff Software Engineer', category: 'Enterprise & Senior', isNew: true },
+    { title: 'Backend Developer', category: 'Software & Dev', isNew: false },
+    { title: 'Frontend Developer', category: 'Software & Dev', isNew: false },
+    { title: 'Full Stack Developer', category: 'Software & Dev', isNew: false },
+    { title: 'Site Reliability Engineer (SRE)', category: 'Cloud, DevOps & SRE', isNew: true },
+    { title: 'DevOps Engineer', category: 'Cloud, DevOps & SRE', isNew: false },
+    { title: 'Platform Engineer', category: 'Cloud, DevOps & SRE', isNew: true },
+    { title: 'Cloud Engineer', category: 'Cloud, DevOps & SRE', isNew: false },
+    { title: 'Cyber Security Engineer', category: 'Cloud, DevOps & SRE', isNew: false },
+    { title: 'Data Engineer', category: 'Software & Dev', isNew: true },
+    { title: 'Data Scientist', category: 'AI & Frontier Tech', isNew: false }
   ];
+
+  const categories = ['All', 'AI & Frontier Tech', 'Software & Dev', 'Cloud, DevOps & SRE', 'Enterprise & Senior'];
+
+  const filteredGoals = goalCategory === 'All'
+    ? careerGoals
+    : careerGoals.filter(g => g.category === goalCategory);
 
   const handleAddCert = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -150,6 +166,7 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
     } else {
       onCompleteOnboarding({
         profile,
+        portfolioUrl: profile.portfolio,
         githubUsername,
         githubConnected,
         githubRepos,
@@ -173,7 +190,7 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
             <h2 style={{ fontSize: '1.6rem' }}>
               {step === 1 && "Complete Your Professional Profile"}
               {step === 2 && "Connect Your GitHub Account"}
-              {step === 3 && "Upload Your ATS Resume"}
+              {step === 3 && "Upload ATS Resume & Optional Portfolio Link"}
               {step === 4 && "Upload Your Verifiable Certificates"}
               {step === 5 && "Choose Your Target Career Goal"}
             </h2>
@@ -316,52 +333,99 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
             </div>
           )}
 
-          {/* STEP 3: Resume */}
+          {/* STEP 3: Resume & Optional Portfolio Link */}
           {step === 3 && (
-            <div style={{ textAlign: 'center', padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                background: resumeFile ? 'rgba(16, 185, 129, 0.15)' : 'rgba(139, 92, 246, 0.1)',
-                border: resumeFile ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {resumeFile ? <Check size={32} color="#10b981" /> : <FileText size={32} color="#8b5cf6" />}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Resume Selector */}
+              <div style={{ textAlign: 'center', padding: '20px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '14px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '50%',
+                  background: resumeFile ? 'rgba(16, 185, 129, 0.15)' : 'rgba(139, 92, 246, 0.1)',
+                  border: resumeFile ? '1px solid rgba(16, 185, 129, 0.4)' : 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {resumeFile ? <Check size={28} color="#10b981" /> : <FileText size={28} color="#8b5cf6" />}
+                </div>
+
+                {resumeFile ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ padding: '10px 18px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#10b981', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Check size={16} /> Resume Uploaded: {resumeFile.name}
+                    </div>
+
+                    <button
+                      onClick={() => setResumeFile(null)}
+                      style={{ background: 'transparent', border: 'none', color: '#ec4899', cursor: 'pointer', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <Trash2 size={13} /> Remove & Change Resume
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <h3 style={{ fontSize: '1.05rem', margin: 0 }}>Select your PDF or DOCX Resume</h3>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '4px', margin: 0 }}>Supports PDF and Word formats (Max 10MB)</p>
+                    </div>
+
+                    <input type="file" id="onboard-resume" accept=".pdf,.docx,.txt" style={{ display: 'none' }} onChange={e => e.target.files[0] && setResumeFile(e.target.files[0])} />
+                    
+                    <label htmlFor="onboard-resume" className="btn-secondary" style={{ cursor: 'pointer', fontSize: '0.85rem' }}>
+                      <Upload size={15} /> Choose Resume File
+                    </label>
+                  </>
+                )}
               </div>
 
-              {resumeFile ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ padding: '12px 20px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '12px', color: '#10b981', fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Check size={18} /> Resume Uploaded: {resumeFile.name}
-                  </div>
-
-                  <button
-                    onClick={() => setResumeFile(null)}
-                    style={{ background: 'transparent', border: 'none', color: '#ec4899', cursor: 'pointer', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  >
-                    <Trash2 size={14} /> Remove & Change Resume
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem' }}>Select your PDF or DOCX Resume</h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Supports PDF and Word formats (Max 10MB)</p>
-                  </div>
-
-                  <input type="file" id="onboard-resume" accept=".pdf,.docx,.txt" style={{ display: 'none' }} onChange={e => e.target.files[0] && setResumeFile(e.target.files[0])} />
-                  
-                  <label htmlFor="onboard-resume" className="btn-secondary" style={{ cursor: 'pointer' }}>
-                    <Upload size={16} /> Choose Resume File
+              {/* Portfolio Link Input Card */}
+              <div style={{
+                padding: '20px',
+                borderRadius: '14px',
+                background: 'rgba(6, 182, 212, 0.04)',
+                border: '1px solid rgba(6, 182, 212, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--hud-cyan-bright)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Globe size={18} color="#06b6d4" /> Portfolio Website Link
                   </label>
-                </>
-              )}
+                  <span style={{ fontSize: '0.7rem', color: '#06b6d4', background: 'rgba(6, 182, 212, 0.15)', padding: '2px 8px', borderRadius: '12px', fontWeight: 700, letterSpacing: '0.5px' }}>
+                    OPTIONAL (+15% SCORE BOOST)
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                  Have a personal website, GitHub Pages, Vercel app, or Behance portfolio? Paste your link below for automated portfolio analysis on your dashboard!
+                </p>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input
+                    type="url"
+                    className="form-input"
+                    placeholder="https://myportfolio.dev or username.github.io"
+                    value={profile.portfolio}
+                    onChange={e => setProfile({ ...profile, portfolio: e.target.value })}
+                  />
+                  {profile.portfolio && (
+                    <a
+                      href={profile.portfolio.startsWith('http') ? profile.portfolio : `https://${profile.portfolio}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary"
+                      style={{ padding: '0 14px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                    >
+                      <ExternalLink size={14} /> Visit
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
           )}
-
           {/* STEP 4: Certificates */}
           {step === 4 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -395,28 +459,62 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
 
           {/* STEP 5: Career Goal */}
           {step === 5 && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {careerGoals.map(goal => (
-                <div
-                  key={goal}
-                  onClick={() => setSelectedGoal(goal)}
-                  style={{
-                    padding: '16px',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid',
-                    borderColor: selectedGoal === goal ? '#3b82f6' : 'var(--border-color)',
-                    background: selectedGoal === goal ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.02)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    transition: 'var(--transition)'
-                  }}
-                >
-                  <span style={{ fontSize: '0.925rem', fontWeight: selectedGoal === goal ? 600 : 400 }}>{goal}</span>
-                  {selectedGoal === goal && <Check size={18} color="#3b82f6" />}
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Category Filter Pills */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setGoalCategory(cat)}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '20px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      border: '1px solid',
+                      borderColor: goalCategory === cat ? '#8b5cf6' : 'var(--border-color)',
+                      background: goalCategory === cat ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+                      color: goalCategory === cat ? '#a855f7' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      transition: 'var(--transition)'
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Roles Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', maxHeight: '420px', overflowY: 'auto', paddingRight: '4px' }}>
+                {filteredGoals.map(item => {
+                  const goal = item.title;
+                  const isSelected = selectedGoal === goal;
+
+                  return (
+                    <div
+                      key={goal}
+                      onClick={() => setSelectedGoal(goal)}
+                      style={{
+                        padding: '14px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        border: '1px solid',
+                        borderColor: isSelected ? '#3b82f6' : 'var(--border-color)',
+                        background: isSelected ? 'rgba(59, 130, 246, 0.15)' : 'rgba(255, 255, 255, 0.02)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        transition: 'var(--transition)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: isSelected ? 600 : 400 }}>{goal}</span>
+                      </div>
+                      {isSelected && <Check size={18} color="#3b82f6" />}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 

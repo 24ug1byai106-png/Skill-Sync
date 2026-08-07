@@ -44,10 +44,29 @@ class ProfileCreate(BaseModel):
     location: str | None = Field(default=None, max_length=160)
     bio: str | None = Field(default=None, max_length=5000)
     profile_image_path: str | None = Field(default=None, max_length=500)
+    portfolio_url: str | None = Field(default=None, max_length=500)
 
 
 class ProfileRead(UUIDTimestampSchema, ProfileCreate):
     user_id: UUID
+
+
+class PortfolioAnalyzeRequest(BaseModel):
+    portfolio_url: str = Field(min_length=3, max_length=500)
+
+
+class PortfolioAnalyzeResponse(BaseModel):
+    is_provided: bool
+    url: str
+    score: int
+    status: str
+    domain_type: str
+    https_status: str
+    ui_ux_grade: str
+    responsiveness: str
+    seo_score: str
+    highlights: list[str]
+    recommendations: list[str]
 
 
 class CareerGoalCreate(BaseModel):

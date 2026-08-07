@@ -4,6 +4,7 @@ import { Cpu, CheckCircle2, Loader2, Sparkles } from 'lucide-react';
 const steps = [
   "Resume Intelligence & ATS Analysis",
   "GitHub Repository & Commit Analysis",
+  "Portfolio & Web Showcase Audit",
   "Career DNA Profile Generation",
   "Skill Gap Detection Engine",
   "Career Readiness Calculation",
