@@ -2,6 +2,9 @@
 
 > **Empowering Students to Bridge Skill Gaps, Build Verified Project Proof, and Master Placement Preparation with AI.**
 
+🌐 **Live Production App**: [https://skillsync-mu-brown.vercel.app/](https://skillsync-mu-brown.vercel.app/)
+
+[![Live App](https://img.shields.io/badge/Live_Deployment-skillsync--mu--brown.vercel.app-00e5ff?style=for-the-badge&logo=vercel)](https://skillsync-mu-brown.vercel.app/)
 ![SkillSync AI](https://img.shields.io/badge/SkillSync-AI--v3.0-00e5ff?style=for-the-badge&logo=react)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
