@@ -3,13 +3,18 @@ services:
   - type: web
     name: skillsync-backend
     env: python
+    rootDir: backend
     region: singapore
     plan: free
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.12
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
       - key: GROQ_API_KEY
         sync: false
       - key: SUPABASE_URL
@@ -23,8 +28,9 @@ services:
   - type: web
     name: skillsync-frontend
     env: static
-    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
-    staticPublishPath: ./frontend/dist
+    rootDir: frontend
+    buildCommand: npm install --legacy-peer-deps && npm run build
+    staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
