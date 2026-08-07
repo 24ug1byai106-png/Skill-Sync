@@ -20,8 +20,9 @@ services:
         generateValue: true
 
   # 2. React Frontend Static Site
-  - type: static
+  - type: web
     name: skillsync-frontend
+    env: static
     buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
     staticPublishPath: ./frontend/dist
     routes:
