@@ -12,6 +12,10 @@ services:
         value: 3.10.12
       - key: GROQ_API_KEY
         sync: false
+      - key: SUPABASE_URL
+        value: https://pylupxecznfdwnurlyvj.supabase.co
+      - key: SUPABASE_KEY
+        sync: false
       - key: SECRET_KEY
         generateValue: true
 
