@@ -3,6 +3,15 @@ import { Award, Upload, Trash2, ExternalLink, CheckCircle2, ShieldCheck, X, Eye,
 
 const DEFAULT_CERT_PHOTO = "https://images.unsplash.com/photo-1589330694653-aded6f773eb0?w=800&auto=format&fit=crop&q=80";
 
+function getValidCertPhoto(cert) {
+  if (!cert || !cert.fileUrl) return DEFAULT_CERT_PHOTO;
+  const url = cert.fileUrl.trim();
+  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+    return url;
+  }
+  return DEFAULT_CERT_PHOTO;
+}
+
 export default function CertificatesView({ userData = {}, onUpdateUserData }) {
   const [certs, setCerts] = useState(userData.certificates || []);
   const [previewCert, setPreviewCert] = useState(null);
@@ -128,7 +137,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           {certs.map(c => {
-            const displayPhoto = c.fileUrl || DEFAULT_CERT_PHOTO;
+            const displayPhoto = getValidCertPhoto(c);
 
             return (
               <div 
@@ -204,6 +213,10 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                   <img 
                     src={displayPhoto} 
                     alt={c.name} 
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_CERT_PHOTO;
+                    }}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                   />
                   <div style={{
@@ -305,7 +318,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
               minHeight: '380px'
             }}>
               {previewCert.isPdf || previewCert.type?.includes('pdf') || previewCert.name?.endsWith('.pdf') ? (
-                previewCert.fileUrl ? (
+                previewCert.fileUrl && previewCert.fileUrl.startsWith('data:') ? (
                   <iframe 
                     src={previewCert.fileUrl} 
                     title={previewCert.name}
@@ -313,15 +326,23 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                   />
                 ) : (
                   <img 
-                    src={DEFAULT_CERT_PHOTO} 
+                    src={getValidCertPhoto(previewCert)} 
                     alt={previewCert.name}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = DEFAULT_CERT_PHOTO;
+                    }}
                     style={{ maxWidth: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '4px', border: '2px solid var(--hud-cyan-bright)', boxShadow: '0 0 25px var(--hud-cyan-glow)' }}
                   />
                 )
               ) : (
                 <img 
-                  src={previewCert.fileUrl || DEFAULT_CERT_PHOTO} 
+                  src={getValidCertPhoto(previewCert)} 
                   alt={previewCert.name}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_CERT_PHOTO;
+                  }}
                   style={{ 
                     maxWidth: '100%', 
                     maxHeight: '560px', 
@@ -348,25 +369,26 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                 <label 
                   htmlFor={`replace-cert-photo-${previewCert.id}`}
                   style={{
-                    background: 'rgba(0, 229, 255, 0.1)',
-                    border: '1px solid var(--border-cyan)',
+                    background: 'rgba(0, 229, 255, 0.15)',
+                    border: '1px solid var(--hud-cyan-bright)',
                     color: 'var(--hud-cyan-bright)',
-                    padding: '8px 14px',
-                    fontSize: '0.78rem',
+                    padding: '8px 16px',
+                    fontSize: '0.8rem',
                     fontWeight: 800,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    fontFamily: "'Share Tech Mono', monospace"
+                    gap: '8px',
+                    fontFamily: "'Share Tech Mono', monospace",
+                    boxShadow: '0 0 15px rgba(0, 229, 255, 0.2)'
                   }}
                 >
-                  <ImageIcon size={14} /> [ ATTACH / REPLACE CERTIFICATE PHOTO ]
+                  <ImageIcon size={16} /> [ UPLOAD / REPLACE YOUR CERTIFICATE PHOTO ]
                 </label>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {previewCert.fileUrl && (
+                {previewCert.fileUrl && previewCert.fileUrl.startsWith('data:') && (
                   <a
                     href={previewCert.fileUrl}
                     target="_blank"
