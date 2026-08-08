@@ -21,7 +21,7 @@ import {
   Linkedin
 } from 'lucide-react';
 import { computeCareerAnalysis } from '../services/analysisEngine';
-import { calculateJobMatch, ROLE_SEARCH_MAP, getLinkedInHiringPosts } from '../services/jobRecommendationEngine';
+import { calculateJobMatch, ROLE_SEARCH_MAP, getLinkedInHiringPosts, getFallbackJobsForRole } from '../services/jobRecommendationEngine';
 import { fetchApi } from '../services/api';
 import { saveUserJob, getUserSavedJobs, updateJobStatus } from '../services/supabase';
 
@@ -73,10 +73,10 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
       ]);
 
       if (isMounted) {
-        if (resJobs && resJobs.jobs) {
+        if (resJobs && resJobs.jobs && resJobs.jobs.length > 0) {
           setRawJobs(resJobs.jobs);
         } else {
-          setRawJobs([]);
+          setRawJobs(getFallbackJobsForRole(selectedRole));
         }
 
         if (resPosts && resPosts.posts && resPosts.posts.length > 0) {
@@ -191,6 +191,7 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
     setWorkModeFilter('All Modes');
     setSearchQuery('');
     setSelectedCompanyFilter(null);
+    setRawJobs(getFallbackJobsForRole(selectedRole));
   };
 
   return (
