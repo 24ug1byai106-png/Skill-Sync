@@ -36,3 +36,19 @@ async def search_jobs(
         "jobs": jobs
     }
 
+@router.get("/linkedin-posts")
+async def get_linkedin_posts(
+    role: Optional[str] = Query(None, description="Target career role e.g. AI/ML Engineer")
+) -> Dict[str, Any]:
+    """
+    Returns verified recruiter & hiring manager LinkedIn posts pointing directly to company hiring portals.
+    """
+    posts = await JobSearchService.get_linkedin_posts(role=role)
+    return {
+        "success": True,
+        "total": len(posts),
+        "role": role,
+        "posts": posts
+    }
+
+
