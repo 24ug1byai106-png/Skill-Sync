@@ -733,7 +733,7 @@ class JobSearchService:
                 "company": "NeuroCraft AI",
                 "post_text": "We are expanding our core team at NeuroCraft AI in Bengaluru / Remote! Looking for 2 Junior AI/ML Engineers passionate about LLMs, LangChain, PyTorch, and FastAPI microservices. DMs are open or click below to connect & apply! 🚀 #Hiring #AIStartups #PyTorch",
                 "tags": ["LLMs", "PyTorch", "LangChain", "FastAPI"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=AI%20Engineer%20Startup",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=NeuroCraft%20AI%20AI%20Engineer",
                 "posted_time": "3 hours ago on LinkedIn",
                 "verified": True
             },
@@ -746,7 +746,7 @@ class JobSearchService:
                 "company": "VisionScale Labs",
                 "post_text": "VisionScale Labs is hiring Machine Learning Engineers (Hyderabad / Hybrid)! We process 5M+ video frames daily for industrial automation. Python + PyTorch + Docker experience needed. DM your GitHub! ⚡ #MachineLearning #ComputerVision #Hiring",
                 "tags": ["ComputerVision", "PyTorch", "Docker", "Hyderabad"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=Machine%20Learning%20Startup",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=VisionScale%20Labs%20Machine%20Learning",
                 "posted_time": "1 day ago on LinkedIn",
                 "verified": True
             },
@@ -759,7 +759,7 @@ class JobSearchService:
                 "company": "DeepLogic Systems",
                 "post_text": "Hiring Alert! DeepLogic Systems is opening roles for AI/ML Developers (0-2 yrs exp / Remote). If you have hands-on experience fine-tuning open-source LLMs or HuggingFace models, feel free to apply! 🎯 #DeepLogic #GenerativeAI",
                 "tags": ["GenerativeAI", "HuggingFace", "Python", "Remote"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=AI%20Developer%20Remote",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=DeepLogic%20Systems%20AI%20Developer",
                 "posted_time": "2 days ago on LinkedIn",
                 "verified": True
             },
@@ -774,7 +774,7 @@ class JobSearchService:
                 "company": "MicroFlow Tech",
                 "post_text": "MicroFlow Tech (Bengaluru) is hiring Backend Software Engineers (0-2 yrs exp)! We build ultra-low latency event stream microservices in Java & Spring Boot. Competitive pay + equity. DM your resume! 💳 #Java #BackendEngineers #StartupHiring",
                 "tags": ["Java", "Spring Boot", "PostgreSQL", "Bengaluru"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=Backend%20Engineer%20Startup",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=MicroFlow%20Tech%20Software%20Engineer",
                 "posted_time": "4 hours ago on LinkedIn",
                 "verified": True
             },
@@ -787,7 +787,7 @@ class JobSearchService:
                 "company": "SaaSify Labs",
                 "post_text": "We are hiring Software Engineers for our high-scale API platform at SaaSify Labs (Pune / Hybrid)! Requirements: Python, FastAPI, Docker, and PostgreSQL. DMs are open! 🌐 #Python #FastAPI #SaaS",
                 "tags": ["Python", "FastAPI", "Docker", "Pune"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=Software%20Developer%20FastAPI",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=SaaSify%20Labs%20Software%20Engineer",
                 "posted_time": "Today on LinkedIn",
                 "verified": True
             },
@@ -802,7 +802,7 @@ class JobSearchService:
                 "company": "CloudSphere Systems",
                 "post_text": "Hiring Cloud Infrastructure & SRE Engineers at CloudSphere Systems (Remote India)! Looking for expertise in AWS, Kubernetes container orchestration, and Terraform automation. Apply now! ☁️ #DevOps #Kubernetes #CloudJobs",
                 "tags": ["AWS", "Kubernetes", "Terraform", "Remote"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=Cloud%20Engineer%20Kubernetes",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=CloudSphere%20Systems%20Cloud%20Engineer",
                 "posted_time": "5 hours ago on LinkedIn",
                 "verified": True
             },
@@ -817,7 +817,7 @@ class JobSearchService:
                 "company": "CyberGuard AI",
                 "post_text": "CyberGuard AI (Gurugram) is hiring Cybersecurity Analysts & SOC Incident Responders! If you know Python, Wireshark, packet capture inspection, and SIEM alert monitoring, reach out directly! 🛡️ #Cybersecurity #SOCHiring #Linux",
                 "tags": ["Wireshark", "NetworkSecurity", "Linux", "Gurugram"],
-                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=Cybersecurity%20Analyst%20SOC",
+                "linkedin_url": "https://www.linkedin.com/jobs/search/?keywords=CyberGuard%20AI%20Cybersecurity",
                 "posted_time": "6 hours ago on LinkedIn",
                 "verified": True
             }
