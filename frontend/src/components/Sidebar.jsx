@@ -12,6 +12,7 @@ import {
   Award, 
   Code2, 
   Bot, 
+  Briefcase,
   Trophy, 
   Settings, 
   LogOut 
@@ -20,6 +21,7 @@ import SkillSyncLogo from './SkillSyncLogo';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'jobs', label: 'Job Opportunities', icon: Briefcase },
   { id: 'career_dna', label: 'Career DNA', icon: Dna },
   { id: 'resume', label: 'Resume Intelligence', icon: FileText },
   { id: 'github', label: 'GitHub Intelligence', icon: Github },

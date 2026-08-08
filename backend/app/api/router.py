@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from app.admin.router import router as admin_router
 from app.analytics.router import router as analytics_router
-from app.api.routers import auth, career, dashboard, github, health, judge0, mentor, missions, notifications, profiles, projects, resume, roadmaps
+from app.api.routers import auth, career, dashboard, github, health, jobs, judge0, mentor, missions, notifications, profiles, projects, resume, roadmaps
 from app.files.router import router as files_router
 from app.monitoring.router import router as monitoring_router
 from app.realtime.router import router as realtime_router
@@ -15,6 +15,7 @@ api_router.include_router(monitoring_router, prefix="/monitoring", tags=["monito
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
 api_router.include_router(career.router, prefix="/career", tags=["career"])
+api_router.include_router(jobs.router, prefix="/jobs", tags=["jobs"])
 api_router.include_router(resume.router, prefix="/resume", tags=["resume"])
 api_router.include_router(github.router, prefix="/github", tags=["github"])
 api_router.include_router(roadmaps.router, prefix="/roadmaps", tags=["roadmaps"])

@@ -25,6 +25,8 @@ import SettingsView from './views/SettingsView';
 import MockInterviewRoom from './views/MockInterviewRoom';
 import MockInterviewResults from './views/MockInterviewResults';
 
+import JobsView from './views/JobsView';
+
 import { loadUserAnalysis, saveUserAnalysis } from './services/analysisEngine';
 
 export default function App() {
@@ -40,12 +42,10 @@ export default function App() {
   }
 
   // Application Stage: 'landing' | 'auth' | 'onboarding' | 'processing' | 'dashboard'
-  const [stage, setStage] = useState('landing');
-
-  
+  const [stage, setStage] = useState(() => path === '/jobs' ? 'dashboard' : 'landing');
   const [authMode, setAuthMode] = useState('signup');
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => path === '/jobs' ? 'jobs' : 'dashboard');
 
   const handleStartOnboarding = () => {
     setAuthMode('signup');
@@ -135,7 +135,9 @@ export default function App() {
   const renderSubView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardView userData={userData} onUpdateUserData={handleUpdateUserData} />;
+        return <DashboardView userData={userData} onUpdateUserData={handleUpdateUserData} onNavigateTab={(tab) => setActiveTab(tab)} />;
+      case 'jobs':
+        return <JobsView userData={userData} onUpdateUserData={handleUpdateUserData} />;
       case 'career_dna':
         return <CareerDnaView userData={userData} />;
       case 'resume':

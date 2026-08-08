@@ -312,4 +312,63 @@ export async function getProjectRecommendationHistory() {
   }
 }
 
+export async function saveUserJob(job, status = 'Saved') {
+  try {
+    const { data, error } = await supabase
+      .from('saved_jobs')
+      .upsert([{
+        job_id: String(job.id),
+        job_title: job.title,
+        company: job.company,
+        location: job.location || 'Remote',
+        work_mode: job.work_mode || 'Hybrid',
+        job_url: job.job_url || '#',
+        status: status,
+        saved_at: new Date().toISOString()
+      }], { onConflict: 'job_id' })
+      .select();
+
+    if (error) console.warn("Supabase saved_jobs upsert note:", error.message);
+    return { success: !error, data };
+  } catch (err) {
+    console.warn("saveUserJob exception:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function getUserSavedJobs() {
+  try {
+    const { data, error } = await supabase
+      .from('saved_jobs')
+      .select('*')
+      .order('saved_at', { ascending: false });
+
+    if (error) {
+      console.warn("Supabase saved_jobs select note:", error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn("getUserSavedJobs exception:", err);
+    return [];
+  }
+}
+
+export async function updateJobStatus(jobId, newStatus) {
+  try {
+    const { data, error } = await supabase
+      .from('saved_jobs')
+      .update({ status: newStatus })
+      .eq('job_id', String(jobId))
+      .select();
+
+    if (error) console.warn("Supabase saved_jobs status update note:", error.message);
+    return { success: !error, data };
+  } catch (err) {
+    console.warn("updateJobStatus exception:", err);
+    return { success: false };
+  }
+}
+
+
 

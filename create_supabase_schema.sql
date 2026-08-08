@@ -242,6 +242,21 @@ CREATE TABLE IF NOT EXISTS public.recommended_projects (
     recommendation_reason TEXT
 );
 
+-- 16. Saved Jobs & Application Status Tracking Table
+CREATE TABLE IF NOT EXISTS public.saved_jobs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    job_id VARCHAR(255) NOT NULL,
+    job_title VARCHAR(255) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    work_mode VARCHAR(60),
+    job_url TEXT NOT NULL,
+    status VARCHAR(60) DEFAULT 'Saved' NOT NULL,
+    saved_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    UNIQUE(user_id, job_id)
+);
+
 -- Enable Row Level Security on all tables
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -258,6 +273,7 @@ ALTER TABLE public.career_readiness ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.interview_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_catalog ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.recommended_projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.saved_jobs ENABLE ROW LEVEL SECURITY;
 
 -- Allow public access for anon & authenticated roles during dev
 CREATE POLICY "Users Access" ON public.users FOR ALL USING (true);
@@ -269,6 +285,8 @@ CREATE POLICY "Github Accounts Access" ON public.github_accounts FOR ALL USING (
 CREATE POLICY "Interview Sessions Access" ON public.interview_sessions FOR ALL USING (true);
 CREATE POLICY "Project Catalog Access" ON public.project_catalog FOR ALL USING (true);
 CREATE POLICY "Recommended Projects Access" ON public.recommended_projects FOR ALL USING (true);
+CREATE POLICY "Saved Jobs Access" ON public.saved_jobs FOR ALL USING (true);
+
 
 
 
