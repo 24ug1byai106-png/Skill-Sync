@@ -17,10 +17,12 @@ import {
   ArrowRight, 
   X,
   Target,
-  UserCheck
+  UserCheck,
+  Linkedin,
+  MessageSquare
 } from 'lucide-react';
 import { computeCareerAnalysis } from '../services/analysisEngine';
-import { calculateJobMatch, ROLE_SEARCH_MAP } from '../services/jobRecommendationEngine';
+import { calculateJobMatch, ROLE_SEARCH_MAP, getLinkedInHiringPosts } from '../services/jobRecommendationEngine';
 import { fetchApi } from '../services/api';
 import { saveUserJob, getUserSavedJobs, updateJobStatus } from '../services/supabase';
 
@@ -150,6 +152,9 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
     const sum = processedJobs.reduce((acc, j) => acc + j.matchInfo.matchPercentage, 0);
     return Math.round(sum / processedJobs.length);
   }, [processedJobs]);
+
+  // LinkedIn Recruiter Hiring Posts Feed
+  const linkedInPosts = useMemo(() => getLinkedInHiringPosts(targetRole), [targetRole]);
 
   // Handlers for Save & Status Change
   const handleToggleSave = async (job) => {
@@ -286,6 +291,89 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
           </div>
         </div>
       )}
+
+      {/* 3.5 LIVE RECRUITER & TEAM HIRING POSTS (LINKEDIN INSIGHTS) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '0.84rem', color: '#0A66C2', fontWeight: 800, fontFamily: "'Share Tech Mono', monospace", display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Linkedin size={18} color="#0A66C2" /> LIVE RECRUITER & TEAM HIRING POSTS ({targetRole.toUpperCase()})
+          </span>
+          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontFamily: "'Share Tech Mono', monospace" }}>
+            VERIFIED HIRING MANAGER SHOUTOUTS
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+          {linkedInPosts.map(post => (
+            <div key={post.id} className="hud-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', background: 'var(--bg-panel)', borderLeft: '3px solid #0A66C2' }}>
+              
+              {/* Author Header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <img 
+                  src={post.author_avatar} 
+                  alt={post.author_name}
+                  style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #0A66C2', objectFit: 'cover' }} 
+                />
+                <div>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: "'Share Tech Mono', monospace" }}>
+                    {post.author_name}
+                    <span style={{ background: 'rgba(10, 102, 194, 0.2)', color: '#0A66C2', padding: '1px 6px', fontSize: '0.68rem', borderRadius: '4px' }}>
+                      ✓ VERIFIED RECRUITER
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--hud-cyan-bright)', fontFamily: "'Share Tech Mono', monospace" }}>
+                    {post.author_role}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    {post.posted_time}
+                  </div>
+                </div>
+              </div>
+
+              {/* Post Text */}
+              <div style={{ background: '#07090E', padding: '12px 14px', border: '1px solid rgba(10, 102, 194, 0.3)', borderRadius: '4px' }}>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                  "{post.post_text}"
+                </p>
+              </div>
+
+              {/* Tags */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                {post.tags.map(tag => (
+                  <span key={tag} style={{ background: 'rgba(0, 229, 255, 0.08)', border: '1px solid var(--border-cyan)', color: 'var(--hud-cyan-bright)', fontSize: '0.72rem', padding: '2px 8px', fontWeight: 700, fontFamily: "'Share Tech Mono', monospace" }}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Direct LinkedIn Action Link */}
+              <a
+                href={post.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  background: 'rgba(10, 102, 194, 0.15)',
+                  border: '1px solid #0A66C2',
+                  color: '#38bdf8',
+                  padding: '8px 14px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  textDecoration: 'none',
+                  fontFamily: "'Share Tech Mono', monospace",
+                  marginTop: 'auto'
+                }}
+              >
+                [ VIEW LINKEDIN POST & DM RECRUITER → ] <ExternalLink size={14} />
+              </a>
+
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* 4. Filters & Search Controls Bar */}
       <div className="hud-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px', background: 'var(--bg-panel)' }}>
