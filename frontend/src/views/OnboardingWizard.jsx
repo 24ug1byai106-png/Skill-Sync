@@ -152,7 +152,27 @@ export default function OnboardingWizard({ onCompleteOnboarding }) {
   const handleAddCert = (e) => {
     if (e.target.files && e.target.files[0]) {
       const f = e.target.files[0];
-      setCertificates([...certificates, { id: Date.now(), name: f.name, type: f.type, size: '1.1 MB' }]);
+      const isPdf = f.type.includes('pdf') || f.name.toLowerCase().endsWith('.pdf');
+      const isImage = f.type.includes('image') || /\.(png|jpg|jpeg|gif|webp)$/i.test(f.name);
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const fileDataUrl = event.target.result;
+        const newCert = {
+          id: Date.now(),
+          name: f.name,
+          type: isPdf ? 'PDF Document' : (isImage ? 'Image File' : f.type || 'Document'),
+          size: `${(f.size / (1024 * 1024)).toFixed(1)} MB`,
+          fileUrl: fileDataUrl,
+          fileType: f.type,
+          isImage,
+          isPdf,
+          issueDate: new Date().toISOString().split('T')[0],
+          verified: true
+        };
+        setCertificates(prev => [...prev, newCert]);
+      };
+      reader.readAsDataURL(f);
     }
   };
 
