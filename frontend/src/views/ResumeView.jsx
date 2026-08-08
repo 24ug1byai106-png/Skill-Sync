@@ -115,24 +115,14 @@ export default function ResumeView({ userData = {}, onUpdateUserData }) {
         </div>
 
         {(file || userData.resumeFile) ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
             <div style={{ padding: '10px 18px', background: 'rgba(0, 229, 255, 0.1)', border: '1px solid var(--border-cyan)', color: 'var(--hud-cyan-bright)', fontWeight: 700, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
               <CheckCircle2 size={18} /> Resume Uploaded: {file && file.name ? file.name : (userData.resumeFile ? userData.resumeFile.name : 'Resume.pdf')}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button
-                onClick={() => setShowResumePreview(true)}
-                className="btn-hud-amber"
-                style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer' }}
-              >
-                [ 👁 PREVIEW RESUME ]
-              </button>
-
-              <label htmlFor="resume-input" style={{ color: 'var(--hud-amber-bright)', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'underline', fontFamily: "'Share Tech Mono', monospace" }}>
-                Change / Replace Resume File
-              </label>
-            </div>
+            <label htmlFor="resume-input" style={{ color: 'var(--hud-amber-bright)', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'underline', fontFamily: "'Share Tech Mono', monospace" }}>
+              Change / Replace Resume File
+            </label>
           </div>
         ) : (
           <>
@@ -272,83 +262,6 @@ export default function ResumeView({ userData = {}, onUpdateUserData }) {
       <AIResumeBuilder userData={userData} onUpdateUserData={onUpdateUserData} />
 
       {/* RESUME PREVIEW MODAL */}
-      {showResumePreview && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(5, 7, 11, 0.88)',
-          backdropFilter: 'blur(8px)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '24px'
-        }}>
-          <div className="hud-panel" style={{
-            width: '100%',
-            maxWidth: '800px',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-            background: '#07090E',
-            border: '1px solid var(--hud-cyan-bright)',
-            boxShadow: '0 0 40px var(--hud-cyan-glow)',
-            padding: '28px',
-            overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <span style={{ fontSize: '0.74rem', color: 'var(--hud-amber-bright)', fontWeight: 700, fontFamily: "'Share Tech Mono', monospace" }}>
-                  DOCUMENT PREVIEW
-                </span>
-                <h3 style={{ fontSize: '1.2rem', color: 'var(--hud-cyan-bright)', margin: '2px 0 0', fontFamily: "'Share Tech Mono', monospace" }}>
-                  {file && file.name ? file.name.toUpperCase() : 'RESUME_DOCUMENT.PDF'}
-                </h3>
-              </div>
-
-              <button 
-                onClick={() => setShowResumePreview(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-              >
-                <X size={24} color="var(--hud-cyan-bright)" />
-              </button>
-            </div>
-
-            <div style={{
-              background: '#030407',
-              border: '1px solid var(--border-cyan)',
-              borderRadius: '6px',
-              padding: '24px',
-              color: 'var(--text-primary)',
-              fontFamily: 'monospace',
-              fontSize: '0.88rem',
-              lineHeight: 1.6,
-              maxHeight: '480px',
-              overflowY: 'auto',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {userData.resumeText || pastedText ? (
-                userData.resumeText || pastedText
-              ) : (
-                `[ SKILLSYNC ATS PARSER TELEMETRY ]\nFile Name: ${file?.name || 'Resume.pdf'}\nParsed Status: VALIDATED\nExtracted Skills: ${analysisResult.matchedSkills.join(', ')}\nATS Compatibility Index: ${analysisResult.atsScore}%`
-              )}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setShowResumePreview(false)}
-                className="btn-hud-cyan"
-                style={{ padding: '8px 20px', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer' }}
-              >
-                [ CLOSE PREVIEW ]
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
