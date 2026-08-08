@@ -95,7 +95,7 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
   // Compute Processed Jobs with Personalization Matching
   const processedJobs = useMemo(() => {
     let result = rawJobs.map(j => {
-      const match = calculateJobMatch(j, userData);
+      const match = calculateJobMatch(j, userData, selectedRole);
       return {
         ...j,
         matchInfo: match,

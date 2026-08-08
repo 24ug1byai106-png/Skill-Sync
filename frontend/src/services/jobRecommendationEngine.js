@@ -21,9 +21,9 @@ export const ROLE_SEARCH_MAP = {
 /**
  * Calculate multi-vector profile match score and personalized breakdown for a job card.
  */
-export function calculateJobMatch(job, userData = {}) {
+export function calculateJobMatch(job, userData = {}, overrideRole = null) {
   const analysis = computeCareerAnalysis(userData);
-  const targetRole = analysis.targetGoal || userData.selectedGoal || userData.profile?.preferredCareer || 'Software Engineer';
+  const targetRole = overrideRole || job.role_category || analysis.targetGoal || userData.selectedGoal || userData.profile?.preferredCareer || 'Software Engineer';
   const knownSkills = (analysis.matchedSkills || []).map(s => s.toLowerCase());
   const skillGaps = (analysis.missingSkills || []).map(s => s.toLowerCase());
   const userName = userData.profile?.fullName ? userData.profile.fullName.split(' ')[0] : 'Candidate';

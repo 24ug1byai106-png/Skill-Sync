@@ -21,7 +21,6 @@ import SkillSyncLogo from './SkillSyncLogo';
 
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'jobs', label: 'Job Opportunities', icon: Briefcase },
   { id: 'career_dna', label: 'Career DNA', icon: Dna },
   { id: 'resume', label: 'Resume Intelligence', icon: FileText },
   { id: 'github', label: 'GitHub Intelligence', icon: Github },
@@ -33,6 +32,7 @@ const menuItems = [
   { id: 'certificates', label: 'Certificates', icon: Award },
   { id: 'coding', label: 'Coding Challenges', icon: Code2 },
   { id: 'mentor', label: 'AI Career Mentor', icon: Bot },
+  { id: 'jobs', label: 'Job Opportunities', icon: Briefcase },
   { id: 'achievements', label: 'Achievements', icon: Trophy },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
