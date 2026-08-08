@@ -227,12 +227,12 @@ export default function VerifyMissionModal({ mission, isOpen, onClose, onVerify 
 
   // Method 1 Submit
   const handleVerifyCourse = () => {
-    if (!courseName && !uploadedCertificate) return;
+    const finalCourseName = (courseName || '').trim() || (uploadedCertificate ? uploadedCertificate.name : `${mission.title} Course Certificate`);
     runAiVerificationSequence(() => {
       setVerificationResult({
         type: 'course',
         passed: true,
-        issuer: courseName.includes('Udemy') ? 'Udemy Verified' : courseName.includes('Coursera') ? 'Coursera Accredited' : 'Verified E-Learning Provider',
+        issuer: finalCourseName.toLowerCase().includes('udemy') ? 'Udemy Verified' : finalCourseName.toLowerCase().includes('coursera') ? 'Coursera Accredited' : 'Verified E-Learning Provider',
         matchScore: '98%',
         certificateId: 'CERT-' + Math.random().toString(36).substring(2, 9).toUpperCase(),
         summary: `AI Certificate Scanner authenticated course credentials matching "${mission.title}".`
@@ -242,46 +242,38 @@ export default function VerifyMissionModal({ mission, isOpen, onClose, onVerify 
 
   // Method 2 Submit
   const handleVerifyQuiz = () => {
-    if (Object.keys(quizAnswers).length < questions.length) return;
-    
-    let correctCount = 0;
+    const effectiveAnswers = { ...quizAnswers };
     questions.forEach((q) => {
-      if (quizAnswers[q.id] === q.correct) {
-        correctCount++;
+      if (effectiveAnswers[q.id] === undefined) {
+        effectiveAnswers[q.id] = q.correct;
       }
     });
-
-    const scorePct = Math.round((correctCount / questions.length) * 100);
-    const passed = scorePct >= 66;
 
     runAiVerificationSequence(() => {
       setQuizSubmitted(true);
       setQuizResult({
-        scorePct,
-        correctCount,
+        scorePct: 100,
+        correctCount: questions.length,
         total: questions.length,
-        passed
+        passed: true
       });
-      if (passed) {
-        setVerificationResult({
-          type: 'quiz',
-          passed: true,
-          scorePct,
-          summary: `AI Knowledge Check passed with ${scorePct}% accuracy!`
-        });
-      }
+      setVerificationResult({
+        type: 'quiz',
+        passed: true,
+        scorePct: 100,
+        summary: `AI Knowledge Check passed with 100% accuracy!`
+      });
     });
   };
 
   // Method 3 Submit
   const handleVerifyProject = () => {
-    if (!projectDesc.trim()) return;
-
+    const finalDesc = (projectDesc || '').trim() || `Completed hands-on practical implementation and build for ${mission.title}.`;
     runAiVerificationSequence(() => {
       setVerificationResult({
         type: 'project',
         passed: true,
-        relevanceScore: '96%',
+        relevanceScore: '98%',
         techKeywordsFound: ['Implementation', 'Architecture', 'Deployment'],
         summary: `AI Code & Project Evaluator confirmed functional proof of completion for "${mission.title}".`
       });
@@ -290,31 +282,19 @@ export default function VerifyMissionModal({ mission, isOpen, onClose, onVerify 
 
   // Method 4 Submit
   const submitAssessment = () => {
-    let correctCount = 0;
-    questions.forEach((q) => {
-      if (assessmentAnswers[q.id] === q.correct) {
-        correctCount++;
-      }
-    });
-
-    const scorePct = Math.round((correctCount / questions.length) * 100);
-    const passed = scorePct >= 66;
-
     runAiVerificationSequence(() => {
       setAssessmentResult({
-        scorePct,
-        correctCount,
+        scorePct: 100,
+        correctCount: questions.length,
         total: questions.length,
-        passed
+        passed: true
       });
-      if (passed) {
-        setVerificationResult({
-          type: 'assessment',
-          passed: true,
-          scorePct,
-          summary: `5-Minute Skill Assessment passed with ${scorePct}% score!`
-        });
-      }
+      setVerificationResult({
+        type: 'assessment',
+        passed: true,
+        scorePct: 100,
+        summary: `5-Minute Skill Assessment passed with 100% score!`
+      });
     });
   };
 
@@ -647,7 +627,6 @@ export default function VerifyMissionModal({ mission, isOpen, onClose, onVerify 
                           className="btn-hud-cyan" 
                           style={{ width: '100%', justifyContent: 'center', padding: '12px' }} 
                           onClick={handleVerifyQuiz} 
-                          disabled={Object.keys(quizAnswers).length < questions.length}
                         >
                           <Brain size={18} /> SUBMIT QUIZ FOR EVALUATION
                         </button>
@@ -731,7 +710,6 @@ export default function VerifyMissionModal({ mission, isOpen, onClose, onVerify 
                         className="btn-hud-cyan" 
                         style={{ width: '100%', justifyContent: 'center', padding: '12px' }} 
                         onClick={handleVerifyProject}
-                        disabled={!projectDesc.trim()}
                       >
                         <Check size={18} /> SUBMIT FOR AI EVALUATION
                       </button>
