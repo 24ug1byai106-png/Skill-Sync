@@ -117,16 +117,34 @@ export default function MentorView({ userData = {} }) {
             24/7 AI mentor with full context on your profile, placement preparation, and active roadmap.
           </p>
         </div>
+
+        {/* PROMINENT MOCK TECHNICAL INTERVIEW BUTTON */}
+        <button
+          onClick={() => window.open('/mock-interview', '_blank')}
+          className="btn-hud-cyan"
+          style={{
+            padding: '10px 20px',
+            fontSize: '0.9rem',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 0 20px rgba(0, 229, 255, 0.4)',
+            letterSpacing: '1px'
+          }}
+        >
+          <Sparkles size={16} /> ✦ MOCK TECHNICAL INTERVIEW ↗
+        </button>
       </div>
 
       {/* Quick Prompt Chips */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         <button
-          onClick={() => handleSend("Generate 3 Mock Technical Interview Questions")}
+          onClick={() => window.open('/mock-interview', '_blank')}
           className="btn-secondary"
-          style={{ fontSize: '0.8rem', padding: '6px 14px' }}
+          style={{ fontSize: '0.8rem', padding: '6px 14px', border: '1px solid var(--hud-cyan-bright)', color: 'var(--hud-cyan-bright)' }}
         >
-          <Sparkles size={14} color="var(--hud-cyan-bright)" /> Mock Technical Interview
+          <Sparkles size={14} color="var(--hud-cyan-bright)" /> ✦ MOCK TECHNICAL INTERVIEW
         </button>
         <button
           onClick={() => handleSend("Give me guidance on designing a high-throughput architecture with Redis & FastAPI")}
@@ -136,6 +154,7 @@ export default function MentorView({ userData = {} }) {
           <Code size={14} color="var(--hud-amber-bright)" /> Project Architecture Advice
         </button>
       </div>
+
 
       {/* Chat Area */}
       <div className="hud-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '20px', overflow: 'hidden' }}>

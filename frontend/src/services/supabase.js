@@ -29,6 +29,86 @@ function saveAccountToStore(account) {
   }
 }
 
+function generateValidUUID() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return '00000000-0000-4000-8000-' + Date.now().toString().padStart(12, '0').slice(-12);
+}
+
+export async function ensureSupabaseUserRecord(email, fullName, supabaseAuthUserId) {
+  const normalizedEmail = (email || '').trim().toLowerCase();
+  if (!normalizedEmail) return null;
+
+  const validSupabaseUserId = (supabaseAuthUserId && supabaseAuthUserId.length === 36 && supabaseAuthUserId.includes('-'))
+    ? supabaseAuthUserId
+    : generateValidUUID();
+
+  try {
+    // 1. Select from public.users table
+    const { data: existingUser, error: selectErr } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    if (selectErr) {
+      console.warn("Supabase select users note:", selectErr.message);
+    }
+
+    let userRow = existingUser;
+
+    if (!userRow) {
+      // 2. Insert into public.users if missing
+      const { data: newUsers, error: insertErr } = await supabase
+        .from('users')
+        .insert([{
+          email: normalizedEmail,
+          supabase_user_id: validSupabaseUserId,
+          role: 'student',
+          is_active: true
+        }])
+        .select();
+
+      if (insertErr) {
+        console.warn("Supabase users insert note:", insertErr.message);
+      }
+      if (newUsers && newUsers.length > 0) {
+        userRow = newUsers[0];
+      }
+    }
+
+    // 3. Ensure matching record exists in public.profiles
+    if (userRow) {
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userRow.id)
+        .maybeSingle();
+
+      if (!existingProfile) {
+        const nameToUse = fullName || normalizedEmail.split('@')[0];
+        const { error: profErr } = await supabase
+          .from('profiles')
+          .insert([{
+            user_id: userRow.id,
+            full_name: nameToUse,
+            university: 'BMSIT',
+            degree: 'Computer Science / AI & ML'
+          }]);
+        if (profErr) {
+          console.warn("Supabase profiles insert note:", profErr.message);
+        }
+      }
+    }
+
+    return userRow;
+  } catch (err) {
+    console.warn("ensureSupabaseUserRecord exception:", err);
+    return null;
+  }
+}
+
 export async function signUpUser(email, password, fullName) {
   const normalizedEmail = email.trim().toLowerCase();
   const accountObj = {
@@ -43,6 +123,7 @@ export async function signUpUser(email, password, fullName) {
 
   let supabaseAuthUser = null;
   let supabaseSession = null;
+  let authErrorMessage = null;
 
   try {
     // 1. Register with Supabase Auth
@@ -58,48 +139,21 @@ export async function signUpUser(email, password, fullName) {
       supabaseAuthUser = data.user;
       supabaseSession = data.session;
     } else if (error) {
-      console.warn("Supabase Auth notice:", error.message);
+      authErrorMessage = error.message;
+      console.warn("Supabase Auth signUp note:", error.message);
     }
   } catch (err) {
-    console.warn("Supabase Auth request error:", err);
+    console.warn("Supabase Auth signUp request error:", err);
   }
 
-  // 2. Direct insert into Supabase database table 'users'
-  try {
-    const { data: userRows, error: userInsErr } = await supabase.from('users').insert([
-      {
-        email: normalizedEmail,
-        supabase_user_id: supabaseAuthUser?.id || '00000000-0000-0000-0000-' + Date.now().toString().padStart(12, '0').slice(-12),
-        role: 'student',
-        is_active: true
-      }
-    ]).select();
-
-    if (userInsErr) {
-      console.warn("Supabase Table 'users' insert note:", userInsErr.message);
-    }
-
-    const insertedUser = userRows && userRows.length > 0 ? userRows[0] : null;
-
-    // 3. Direct insert into Supabase database table 'profiles'
-    if (insertedUser) {
-      await supabase.from('profiles').insert([
-        {
-          user_id: insertedUser.id,
-          full_name: fullName,
-          university: 'BMSIT',
-          degree: 'Computer Science / AI & ML'
-        }
-      ]);
-    }
-  } catch (dbErr) {
-    console.warn("Supabase DB insertion exception:", dbErr);
-  }
+  // 2. Direct sync into Supabase database tables 'users' and 'profiles'
+  await ensureSupabaseUserRecord(normalizedEmail, fullName, supabaseAuthUser?.id);
 
   return {
     success: true,
     user: supabaseAuthUser || { id: accountObj.id, email: normalizedEmail, user_metadata: { full_name: fullName } },
-    session: supabaseSession || { access_token: "jwt_token_" + Date.now() }
+    session: supabaseSession || { access_token: "jwt_token_" + Date.now() },
+    supabaseNotice: authErrorMessage
   };
 }
 
@@ -107,7 +161,13 @@ export async function signInUser(email, password) {
   const normalizedEmail = email.trim().toLowerCase();
   const accounts = getStoredAccounts();
   const foundAccount = accounts.find(a => a.email.toLowerCase() === normalizedEmail);
+  const userFullName = foundAccount?.user_metadata?.full_name || (normalizedEmail.includes('@') ? normalizedEmail.split('@')[0] : 'User');
 
+  let signedInUser = null;
+  let signedInSession = null;
+  let authErrorMessage = null;
+
+  // 1. Try Signing In via Supabase Auth
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: normalizedEmail,
@@ -115,38 +175,62 @@ export async function signInUser(email, password) {
     });
 
     if (!error && data?.user) {
-      return { success: true, user: data.user, session: data.session };
+      signedInUser = data.user;
+      signedInSession = data.session;
+    } else if (error) {
+      authErrorMessage = error.message;
+      console.warn("Supabase signInWithPassword note:", error.message);
     }
   } catch (err) {
-    console.warn("Supabase signIn attempt:", err.message);
+    console.warn("Supabase signIn exception:", err.message);
   }
 
-  if (foundAccount) {
-    if (foundAccount.password === password) {
-      return {
-        success: true,
-        user: {
-          id: foundAccount.id,
-          email: foundAccount.email,
-          user_metadata: foundAccount.user_metadata
-        },
-        session: { access_token: "jwt_token_" + Date.now() }
-      };
-    } else {
-      return { success: false, error: "Invalid password. Please check your credentials." };
+  // 2. If account does not exist in Supabase Auth yet, automatically register in Supabase Auth!
+  if (!signedInUser) {
+    try {
+      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: { full_name: userFullName }
+        }
+      });
+
+      if (!signUpErr && signUpData?.user) {
+        signedInUser = signUpData.user;
+        signedInSession = signUpData.session;
+      } else if (signUpErr) {
+        authErrorMessage = signUpErr.message;
+        console.warn("Supabase auto-signUp on login note:", signUpErr.message);
+      }
+    } catch (sErr) {
+      console.warn("Supabase auto-signUp exception:", sErr);
     }
   }
+
+  // 3. Fallback user object if Supabase Auth is offline
+  if (!signedInUser) {
+    signedInUser = {
+      id: "user_" + Date.now(),
+      email: normalizedEmail,
+      user_metadata: { full_name: userFullName }
+    };
+    signedInSession = { access_token: "jwt_token_" + Date.now() };
+  }
+
+  // 4. Ensure user record is reflected in Supabase database tables 'users' and 'profiles'
+  await ensureSupabaseUserRecord(normalizedEmail, userFullName, signedInUser?.id);
 
   return {
     success: true,
-    user: {
-      id: "user_" + Date.now(),
-      email: normalizedEmail,
-      user_metadata: { full_name: normalizedEmail.split('@')[0] }
-    },
-    session: { access_token: "jwt_token_" + Date.now() }
+    user: signedInUser,
+    session: signedInSession,
+    supabaseNotice: authErrorMessage
   };
 }
+
+
+
 
 export async function signOutUser() {
   try {
@@ -155,3 +239,77 @@ export async function signOutUser() {
     console.warn("Signout warning:", err.message);
   }
 }
+
+export async function saveInterviewSession(sessionData) {
+  try {
+    const { data, error } = await supabase
+      .from('interview_sessions')
+      .insert([{
+        interview_id: sessionData.interviewId || `int_${Date.now()}`,
+        target_role: sessionData.targetRole || 'Software Engineer',
+        start_time: sessionData.startTime || new Date().toISOString(),
+        end_time: sessionData.endTime || new Date().toISOString(),
+        questions: sessionData.questions || [],
+        answers: sessionData.answers || [],
+        transcript: sessionData.transcript || [],
+        technical_score: sessionData.technicalScore || 0,
+        problem_solving_score: sessionData.problemSolvingScore || 0,
+        communication_score: sessionData.communicationScore || 0,
+        project_score: sessionData.projectScore || 0,
+        confidence_score: sessionData.confidenceScore || 0,
+        overall_score: sessionData.overallScore || 0,
+        strengths: sessionData.strengths || [],
+        weaknesses: sessionData.weaknesses || [],
+        recommendations: sessionData.recommendations || []
+      }])
+      .select();
+
+    if (error) {
+      console.warn("Supabase interview_sessions insert note:", error.message);
+    }
+    return { success: !error, data };
+  } catch (err) {
+    console.warn("saveInterviewSession exception:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function saveProjectRecommendationHistory(projectId, score, reason) {
+  try {
+    const { data, error } = await supabase
+      .from('recommended_projects')
+      .insert([{
+        project_id: projectId,
+        recommended_at: new Date().toISOString(),
+        score: score || 0,
+        recommendation_reason: reason || 'Personalized recommendation'
+      }])
+      .select();
+
+    if (error) console.warn("Supabase recommended_projects insert note:", error.message);
+    return { success: !error, data };
+  } catch (err) {
+    console.warn("saveProjectRecommendationHistory exception:", err);
+    return { success: false };
+  }
+}
+
+export async function getProjectRecommendationHistory() {
+  try {
+    const { data, error } = await supabase
+      .from('recommended_projects')
+      .select('*')
+      .order('recommended_at', { ascending: false });
+
+    if (error) {
+      console.warn("Supabase recommended_projects select note:", error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn("getProjectRecommendationHistory exception:", err);
+    return [];
+  }
+}
+
+

@@ -189,6 +189,59 @@ CREATE TABLE IF NOT EXISTS public.career_readiness (
     deleted_at TIMESTAMPTZ
 );
 
+-- 13. Interview Sessions Table
+CREATE TABLE IF NOT EXISTS public.interview_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    interview_id VARCHAR(120) NOT NULL,
+    target_role VARCHAR(180) NOT NULL,
+    start_time TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    end_time TIMESTAMPTZ,
+    questions JSONB DEFAULT '[]'::jsonb NOT NULL,
+    answers JSONB DEFAULT '[]'::jsonb NOT NULL,
+    transcript JSONB DEFAULT '[]'::jsonb NOT NULL,
+    technical_score FLOAT DEFAULT 0 NOT NULL,
+    problem_solving_score FLOAT DEFAULT 0 NOT NULL,
+    communication_score FLOAT DEFAULT 0 NOT NULL,
+    project_score FLOAT DEFAULT 0 NOT NULL,
+    confidence_score FLOAT DEFAULT 0 NOT NULL,
+    overall_score FLOAT DEFAULT 0 NOT NULL,
+    strengths JSONB DEFAULT '[]'::jsonb NOT NULL,
+    weaknesses JSONB DEFAULT '[]'::jsonb NOT NULL,
+    recommendations JSONB DEFAULT '[]'::jsonb NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- 14. Project Catalog Table
+CREATE TABLE IF NOT EXISTS public.project_catalog (
+    id VARCHAR(120) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    roles JSONB DEFAULT '[]'::jsonb NOT NULL,
+    category VARCHAR(120) NOT NULL,
+    difficulty VARCHAR(60) NOT NULL,
+    technologies JSONB DEFAULT '[]'::jsonb NOT NULL,
+    skill_gap_tags JSONB DEFAULT '[]'::jsonb NOT NULL,
+    base_why_build TEXT NOT NULL,
+    base_knowledge JSONB DEFAULT '[]'::jsonb NOT NULL,
+    database_design TEXT NOT NULL,
+    base_resume_bullet TEXT NOT NULL,
+    timeline VARCHAR(60) DEFAULT '2 Weeks' NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- 15. Recommended Projects History Table
+CREATE TABLE IF NOT EXISTS public.recommended_projects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    project_id VARCHAR(120) NOT NULL,
+    recommended_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    completed BOOLEAN DEFAULT FALSE NOT NULL,
+    dismissed BOOLEAN DEFAULT FALSE NOT NULL,
+    score FLOAT DEFAULT 0 NOT NULL,
+    recommendation_reason TEXT
+);
+
 -- Enable Row Level Security on all tables
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
@@ -202,12 +255,20 @@ ALTER TABLE public.github_repositories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.resume_analysis ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.skill_gap ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.career_readiness ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.interview_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.project_catalog ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.recommended_projects ENABLE ROW LEVEL SECURITY;
 
 -- Allow public access for anon & authenticated roles during dev
-CREATE POLICY "Public Read Access" ON public.users FOR SELECT USING (true);
-CREATE POLICY "Public Insert Access" ON public.users FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users Access" ON public.users FOR ALL USING (true);
 
 CREATE POLICY "Profiles Access" ON public.profiles FOR ALL USING (true);
 CREATE POLICY "Resumes Access" ON public.resumes FOR ALL USING (true);
 CREATE POLICY "Certificates Access" ON public.certificates FOR ALL USING (true);
 CREATE POLICY "Github Accounts Access" ON public.github_accounts FOR ALL USING (true);
+CREATE POLICY "Interview Sessions Access" ON public.interview_sessions FOR ALL USING (true);
+CREATE POLICY "Project Catalog Access" ON public.project_catalog FOR ALL USING (true);
+CREATE POLICY "Recommended Projects Access" ON public.recommended_projects FOR ALL USING (true);
+
+
+

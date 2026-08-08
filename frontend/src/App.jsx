@@ -22,14 +22,26 @@ import Judge0View from './views/Judge0View';
 import MentorView from './views/MentorView';
 import AchievementsView from './views/AchievementsView';
 import SettingsView from './views/SettingsView';
+import MockInterviewRoom from './views/MockInterviewRoom';
+import MockInterviewResults from './views/MockInterviewResults';
 
 import { loadUserAnalysis, saveUserAnalysis } from './services/analysisEngine';
 
 export default function App() {
   const [userData, setUserData] = useState(() => loadUserAnalysis() || {});
-  
+  const path = window.location.pathname;
+
+  if (path === '/mock-interview') {
+    return <MockInterviewRoom userData={userData} onUpdateUserData={(u) => { setUserData(u); saveUserAnalysis(u); }} />;
+  }
+
+  if (path === '/mock-interview/results') {
+    return <MockInterviewResults userData={userData} />;
+  }
+
   // Application Stage: 'landing' | 'auth' | 'onboarding' | 'processing' | 'dashboard'
   const [stage, setStage] = useState('landing');
+
   
   const [authMode, setAuthMode] = useState('signup');
   const [user, setUser] = useState(null);
