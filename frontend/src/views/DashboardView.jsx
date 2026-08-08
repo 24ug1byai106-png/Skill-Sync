@@ -210,63 +210,6 @@ export default function DashboardView({ userData = {}, onUpdateUserData }) {
         </div>
       </div>
 
-      {/* NEW: JOB OPPORTUNITIES WIDGET CARD */}
-      <div className="hud-panel" style={{
-        padding: '24px 28px',
-        background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, rgba(7, 9, 14, 0.9) 100%)',
-        border: '1px solid var(--border-cyan)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '20px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '8px',
-            background: 'rgba(0, 229, 255, 0.12)',
-            border: '1px solid var(--hud-cyan-bright)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 20px var(--hud-cyan-glow)'
-          }}>
-            <Sparkles size={28} color="var(--hud-cyan-bright)" />
-          </div>
-
-          <div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--hud-amber-bright)', fontWeight: 700, letterSpacing: '1px', fontFamily: "'Share Tech Mono', monospace" }}>
-              🚀 JOBS MATCHED TO YOUR CAREER GOAL
-            </div>
-            <h3 style={{ fontSize: '1.35rem', color: 'var(--hud-cyan-bright)', margin: '2px 0 4px', fontFamily: "'Share Tech Mono', monospace" }}>
-              {analysis.targetGoal.toUpperCase()}
-            </h3>
-            <div style={{ fontSize: '0.86rem', color: 'var(--text-secondary)' }}>
-              Target Location: <strong style={{ color: '#fff' }}>{userData.profile?.location || 'Bengaluru'}</strong> · Matches computed from your skills & gaps.
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => onNavigateTab && onNavigateTab('jobs')}
-          className="btn-hud-cyan"
-          style={{
-            padding: '12px 24px',
-            fontSize: '0.88rem',
-            fontWeight: 800,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-            boxShadow: '0 0 20px rgba(0, 229, 255, 0.3)'
-          }}
-        >
-          [ EXPLORE MATCHED JOBS → ]
-        </button>
-      </div>
-
       {/* Dedicated Portfolio Analysis Widget */}
       <div className="hud-panel" style={{ padding: '24px', border: '1px solid rgba(6, 182, 212, 0.3)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
