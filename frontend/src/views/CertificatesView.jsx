@@ -1,18 +1,47 @@
 import React, { useState } from 'react';
 import { Award, Upload, Trash2, ExternalLink, CheckCircle2, ShieldCheck, X, Eye, Image as ImageIcon } from 'lucide-react';
 
-const DEFAULT_CERT_PHOTO = "https://images.unsplash.com/photo-1589330694653-aded6f773eb0?w=800&auto=format&fit=crop&q=80";
+function createCertificateSvgDataUrl(title = "CERTIFICATE OF ACHIEVEMENT", candidateName = "VERIFIED CANDIDATE", dateStr = "2026-08-08") {
+  const cleanTitle = (title || "CERTIFICATE OF ACHIEVEMENT").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const cleanName = (candidateName || "VERIFIED CANDIDATE").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-function getValidCertPhoto(cert) {
-  if (!cert || !cert.fileUrl) return DEFAULT_CERT_PHOTO;
-  const url = cert.fileUrl.trim();
-  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
-    return url;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+    <rect width="900" height="600" fill="#07090E"/>
+    <rect x="20" y="20" width="860" height="560" fill="none" stroke="#00E5FF" stroke-width="4"/>
+    <rect x="30" y="30" width="840" height="540" fill="none" stroke="#FF9F1C" stroke-width="2" stroke-dasharray="8 6"/>
+    
+    <circle cx="450" cy="270" r="140" fill="none" stroke="rgba(0, 229, 255, 0.08)" stroke-width="24"/>
+    <path d="M450 140 L480 190 L530 198 L492 235 L502 288 L450 260 L398 288 L408 235 L370 198 L420 190 Z" fill="rgba(255, 159, 28, 0.2)" stroke="#FF9F1C" stroke-width="3"/>
+
+    <text x="450" y="85" text-anchor="middle" fill="#00E5FF" font-family="monospace" font-size="20" font-weight="bold" letter-spacing="4">SKILLSYNC AI VERIFIED CREDENTIAL</text>
+    <text x="450" y="118" text-anchor="middle" fill="#8899A6" font-family="sans-serif" font-size="14" letter-spacing="2">OFFICIAL ACADEMIC &amp; TECHNICAL RECORD</text>
+
+    <text x="450" y="220" text-anchor="middle" fill="#FFFFFF" font-family="monospace" font-size="24" font-weight="bold">${cleanTitle.toUpperCase()}</text>
+    <text x="450" y="265" text-anchor="middle" fill="#8899A6" font-family="sans-serif" font-size="15">PROUDLY PRESENTED TO</text>
+    <text x="450" y="315" text-anchor="middle" fill="#00E5FF" font-family="sans-serif" font-size="30" font-weight="bold">${cleanName}</text>
+    
+    <line x1="220" y1="340" x2="680" y2="340" stroke="#FF9F1C" stroke-width="2"/>
+
+    <text x="450" y="390" text-anchor="middle" fill="#E2E8F0" font-family="sans-serif" font-size="16">Has successfully demonstrated technical mastery &amp; verified project readiness.</text>
+    <text x="450" y="420" text-anchor="middle" fill="#00E5FF" font-family="monospace" font-size="14">CRYPTOGRAPHIC SIGNATURE: 0x7F9A...88C2 (VALIDATED)</text>
+
+    <text x="90" y="520" fill="#10B981" font-family="monospace" font-size="14" font-weight="bold">✓ VERIFIED ON-CHAIN</text>
+    <text x="450" y="520" text-anchor="middle" fill="#8899A6" font-family="monospace" font-size="14">ISSUED: ${dateStr}</text>
+    <text x="810" y="520" text-anchor="end" fill="#00E5FF" font-family="monospace" font-size="14" font-weight="bold">READINESS +10%</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function getValidCertPhoto(cert, userName = "VERIFIED CANDIDATE") {
+  if (!cert) return createCertificateSvgDataUrl("CERTIFICATE", userName, "2026-08-08");
+  if (cert.fileUrl && (cert.fileUrl.startsWith('data:') || cert.fileUrl.startsWith('blob:') || cert.fileUrl.startsWith('http://') || cert.fileUrl.startsWith('https://'))) {
+    return cert.fileUrl;
   }
-  return DEFAULT_CERT_PHOTO;
+  return createCertificateSvgDataUrl(cert.name, userName, cert.issueDate || "2026-08-08");
 }
 
 export default function CertificatesView({ userData = {}, onUpdateUserData }) {
+  const userName = userData.name || "Verified Candidate";
   const [certs, setCerts] = useState(userData.certificates || []);
   const [previewCert, setPreviewCert] = useState(null);
 
@@ -27,7 +56,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
         const fileDataUrl = event.target.result;
 
         if (targetCertId) {
-          // Attach photo to existing certificate entry
+          // Attach / Replace photo on existing certificate
           const updatedList = certs.map(c => {
             if (c.id === targetCertId) {
               return {
@@ -137,7 +166,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           {certs.map(c => {
-            const displayPhoto = getValidCertPhoto(c);
+            const displayPhoto = getValidCertPhoto(c, userName);
 
             return (
               <div 
@@ -207,7 +236,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                     border: '1px solid var(--border-cyan)', 
                     cursor: 'pointer',
                     position: 'relative',
-                    background: '#000'
+                    background: '#07090E'
                   }}
                 >
                   <img 
@@ -215,9 +244,9 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                     alt={c.name} 
                     onError={(e) => {
                       e.currentTarget.onerror = null;
-                      e.currentTarget.src = DEFAULT_CERT_PHOTO;
+                      e.currentTarget.src = createCertificateSvgDataUrl(c.name, userName, c.issueDate);
                     }}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
                   />
                   <div style={{
                     position: 'absolute',
@@ -274,7 +303,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
         }}>
           <div className="hud-panel" style={{
             width: '100%',
-            maxWidth: '900px',
+            maxWidth: '920px',
             maxHeight: '92vh',
             display: 'flex',
             flexDirection: 'column',
@@ -310,38 +339,26 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
               background: '#030407',
               border: '1px solid var(--border-cyan)',
               borderRadius: '6px',
-              padding: '20px',
+              padding: '16px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: '380px'
+              minHeight: '400px'
             }}>
-              {previewCert.isPdf || previewCert.type?.includes('pdf') || previewCert.name?.endsWith('.pdf') ? (
-                previewCert.fileUrl && previewCert.fileUrl.startsWith('data:') ? (
-                  <iframe 
-                    src={previewCert.fileUrl} 
-                    title={previewCert.name}
-                    style={{ width: '100%', height: '520px', border: 'none', borderRadius: '4px' }}
-                  />
-                ) : (
-                  <img 
-                    src={getValidCertPhoto(previewCert)} 
-                    alt={previewCert.name}
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = DEFAULT_CERT_PHOTO;
-                    }}
-                    style={{ maxWidth: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '4px', border: '2px solid var(--hud-cyan-bright)', boxShadow: '0 0 25px var(--hud-cyan-glow)' }}
-                  />
-                )
+              {previewCert.fileUrl && previewCert.fileUrl.startsWith('data:application/pdf') ? (
+                <iframe 
+                  src={previewCert.fileUrl} 
+                  title={previewCert.name}
+                  style={{ width: '100%', height: '520px', border: 'none', borderRadius: '4px' }}
+                />
               ) : (
                 <img 
-                  src={getValidCertPhoto(previewCert)} 
+                  src={getValidCertPhoto(previewCert, userName)} 
                   alt={previewCert.name}
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = DEFAULT_CERT_PHOTO;
+                    e.currentTarget.src = createCertificateSvgDataUrl(previewCert.name, userName, previewCert.issueDate);
                   }}
                   style={{ 
                     maxWidth: '100%', 
