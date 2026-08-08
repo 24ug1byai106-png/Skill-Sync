@@ -49,16 +49,17 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
   const [sortBy, setSortBy] = useState('match');
   const [selectedCompanyFilter, setSelectedCompanyFilter] = useState(null);
 
-  // Jobs & Saved Jobs State
+  // Jobs & Saved Jobs & LinkedIn Posts State
   const [rawJobs, setRawJobs] = useState([]);
+  const [linkedInPosts, setLinkedInPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savedJobsMap, setSavedJobsMap] = useState({});
   const [selectedDetailJob, setSelectedDetailJob] = useState(null);
 
-  // Fetch Jobs from backend API endpoint
+  // Fetch Jobs & LinkedIn Recruiter Posts from backend API endpoint
   useEffect(() => {
     let isMounted = true;
-    async function loadJobs() {
+    async function loadJobsAndPosts() {
       setLoading(true);
       const queryParams = new URLSearchParams({
         role: selectedRole,
@@ -67,19 +68,30 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
         work_mode: workModeFilter !== 'All Modes' ? workModeFilter : ''
       });
 
-      const res = await fetchApi(`/jobs/search?${queryParams.toString()}`);
+      const [resJobs, resPosts] = await Promise.all([
+        fetchApi(`/jobs/search?${queryParams.toString()}`),
+        fetchApi(`/jobs/linkedin-posts?role=${encodeURIComponent(targetRole)}`)
+      ]);
+
       if (isMounted) {
-        if (res && res.jobs) {
-          setRawJobs(res.jobs);
+        if (resJobs && resJobs.jobs) {
+          setRawJobs(resJobs.jobs);
         } else {
           setRawJobs([]);
         }
+
+        if (resPosts && resPosts.posts && resPosts.posts.length > 0) {
+          setLinkedInPosts(resPosts.posts);
+        } else {
+          setLinkedInPosts(getLinkedInHiringPosts(targetRole));
+        }
+
         setLoading(false);
       }
     }
-    loadJobs();
+    loadJobsAndPosts();
     return () => { isMounted = false; };
-  }, [selectedRole, searchQuery, locationFilter, workModeFilter]);
+  }, [selectedRole, searchQuery, locationFilter, workModeFilter, targetRole]);
 
   // Load Saved Jobs from Supabase
   useEffect(() => {
@@ -152,9 +164,6 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
     const sum = processedJobs.reduce((acc, j) => acc + j.matchInfo.matchPercentage, 0);
     return Math.round(sum / processedJobs.length);
   }, [processedJobs]);
-
-  // LinkedIn Recruiter Hiring Posts Feed
-  const linkedInPosts = useMemo(() => getLinkedInHiringPosts(targetRole), [targetRole]);
 
   // Handlers for Save & Status Change
   const handleToggleSave = async (job) => {
