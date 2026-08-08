@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Award, Upload, Trash2, ExternalLink, CheckCircle2, ShieldCheck, X, Eye, Download } from 'lucide-react';
+import { Award, Upload, Trash2, ExternalLink, CheckCircle2, ShieldCheck, X, Eye, Image as ImageIcon } from 'lucide-react';
+
+const DEFAULT_CERT_PHOTO = "https://images.unsplash.com/photo-1589330694653-aded6f773eb0?w=800&auto=format&fit=crop&q=80";
 
 export default function CertificatesView({ userData = {}, onUpdateUserData }) {
   const [certs, setCerts] = useState(userData.certificates || []);
   const [previewCert, setPreviewCert] = useState(null);
 
-  const handleUpload = (e) => {
+  const handleUpload = (e, targetCertId = null) => {
     if (e.target.files && e.target.files[0]) {
       const f = e.target.files[0];
       const isPdf = f.type.includes('pdf') || f.name.toLowerCase().endsWith('.pdf');
@@ -14,22 +16,52 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const fileDataUrl = event.target.result;
-        const newCert = {
-          id: Date.now(),
-          name: f.name,
-          type: isPdf ? 'PDF Document' : (isImage ? 'Image File' : 'Document'),
-          issueDate: new Date().toISOString().split('T')[0],
-          verified: true,
-          fileUrl: fileDataUrl,
-          fileType: f.type,
-          isImage,
-          isPdf
-        };
 
-        const updatedList = [newCert, ...certs];
-        setCerts(updatedList);
-        if (onUpdateUserData) {
-          onUpdateUserData({ certificates: updatedList });
+        if (targetCertId) {
+          // Attach photo to existing certificate entry
+          const updatedList = certs.map(c => {
+            if (c.id === targetCertId) {
+              return {
+                ...c,
+                fileUrl: fileDataUrl,
+                fileType: f.type,
+                isImage,
+                isPdf
+              };
+            }
+            return c;
+          });
+          setCerts(updatedList);
+          if (previewCert && previewCert.id === targetCertId) {
+            setPreviewCert({
+              ...previewCert,
+              fileUrl: fileDataUrl,
+              isImage,
+              isPdf
+            });
+          }
+          if (onUpdateUserData) {
+            onUpdateUserData({ certificates: updatedList });
+          }
+        } else {
+          // New Upload
+          const newCert = {
+            id: Date.now(),
+            name: f.name,
+            type: isPdf ? 'PDF Document' : (isImage ? 'Image File' : 'Document'),
+            issueDate: new Date().toISOString().split('T')[0],
+            verified: true,
+            fileUrl: fileDataUrl,
+            fileType: f.type,
+            isImage,
+            isPdf
+          };
+
+          const updatedList = [newCert, ...certs];
+          setCerts(updatedList);
+          if (onUpdateUserData) {
+            onUpdateUserData({ certificates: updatedList });
+          }
         }
       };
 
@@ -40,6 +72,9 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
   const handleDelete = (id) => {
     const updatedList = certs.filter(c => c.id !== id);
     setCerts(updatedList);
+    if (previewCert && previewCert.id === id) {
+      setPreviewCert(null);
+    }
     if (onUpdateUserData) {
       onUpdateUserData({ certificates: updatedList });
     }
@@ -68,7 +103,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
           id="cert-page-upload" 
           accept=".pdf,.png,.jpg,.jpeg,.webp" 
           style={{ display: 'none' }} 
-          onChange={handleUpload} 
+          onChange={(e) => handleUpload(e)} 
         />
         <label 
           htmlFor="cert-page-upload" 
@@ -93,8 +128,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           {certs.map(c => {
-            const isImage = c.isImage || (c.type && c.type.toLowerCase().includes('image')) || (c.name && /\.(png|jpg|jpeg|webp)$/i.test(c.name));
-            const isPdf = c.isPdf || (c.type && c.type.toLowerCase().includes('pdf')) || (c.name && c.name.toLowerCase().endsWith('.pdf'));
+            const displayPhoto = c.fileUrl || DEFAULT_CERT_PHOTO;
 
             return (
               <div 
@@ -150,47 +184,44 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                     {c.name.toUpperCase()}
                   </h4>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
-                    Uploaded: {c.issueDate || 'Today'} · {isPdf ? 'PDF Document' : (isImage ? 'Image File' : 'Credential File')}
+                    Uploaded: {c.issueDate || 'Today'} · {c.type || 'Certificate Document'}
                   </p>
                 </div>
 
-                {/* Thumbnail Preview Box if fileUrl exists */}
-                {c.fileUrl && isImage && (
-                  <div 
-                    onClick={() => handleOpenPreview(c)}
-                    style={{ 
-                      height: '110px', 
-                      borderRadius: '4px', 
-                      overflow: 'hidden', 
-                      border: '1px solid var(--border-cyan)', 
-                      cursor: 'pointer',
-                      position: 'relative'
-                    }}
-                  >
-                    <img 
-                      src={c.fileUrl} 
-                      alt={c.name} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'rgba(0, 0, 0, 0.4)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      transition: 'opacity 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
-                    onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
-                    >
-                      <span style={{ color: 'var(--hud-cyan-bright)', fontSize: '0.8rem', fontWeight: 800, fontFamily: "'Share Tech Mono', monospace" }}>
-                        🔍 CLICK TO ENLARGE
-                      </span>
-                    </div>
+                {/* Interactive Thumbnail Photo Box */}
+                <div 
+                  onClick={() => handleOpenPreview(c)}
+                  style={{ 
+                    height: '130px', 
+                    borderRadius: '4px', 
+                    overflow: 'hidden', 
+                    border: '1px solid var(--border-cyan)', 
+                    cursor: 'pointer',
+                    position: 'relative',
+                    background: '#000'
+                  }}
+                >
+                  <img 
+                    src={displayPhoto} 
+                    alt={c.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(0, 0, 0, 0.45)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    color: 'var(--hud-cyan-bright)',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    fontFamily: "'Share Tech Mono', monospace"
+                  }}>
+                    <Eye size={18} /> CLICK TO ENLARGE CERTIFICATE PHOTO
                   </div>
-                )}
+                </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
                   <button 
@@ -198,7 +229,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                     className="btn-hud-amber" 
                     style={{ fontSize: '0.78rem', padding: '6px 14px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
                   >
-                    <Eye size={14} /> PREVIEW
+                    <Eye size={14} /> PREVIEW PHOTO
                   </button>
 
                   <button 
@@ -230,14 +261,14 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
         }}>
           <div className="hud-panel" style={{
             width: '100%',
-            maxWidth: '850px',
-            maxHeight: '90vh',
+            maxWidth: '900px',
+            maxHeight: '92vh',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px',
             background: '#07090E',
-            border: '1px solid var(--hud-cyan-bright)',
-            boxShadow: '0 0 40px var(--hud-cyan-glow)',
+            border: '2px solid var(--hud-cyan-bright)',
+            boxShadow: '0 0 50px var(--hud-cyan-glow)',
             padding: '28px',
             overflowY: 'auto'
           }}>
@@ -246,7 +277,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--hud-amber-bright)', fontWeight: 700, fontFamily: "'Share Tech Mono', monospace" }}>
-                  DOCUMENT VERIFICATION PREVIEW
+                  CERTIFICATE DOCUMENT PREVIEW
                 </div>
                 <h3 style={{ fontSize: '1.25rem', color: 'var(--hud-cyan-bright)', margin: '2px 0 0', fontFamily: "'Share Tech Mono', monospace" }}>
                   {previewCert.name.toUpperCase()}
@@ -261,7 +292,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
               </button>
             </div>
 
-            {/* Modal Content */}
+            {/* Modal Certificate Photo Container */}
             <div style={{
               background: '#030407',
               border: '1px solid var(--border-cyan)',
@@ -271,60 +302,67 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: '360px'
+              minHeight: '380px'
             }}>
-              {previewCert.fileUrl ? (
-                previewCert.isPdf || previewCert.type?.includes('pdf') || previewCert.name?.endsWith('.pdf') ? (
+              {previewCert.isPdf || previewCert.type?.includes('pdf') || previewCert.name?.endsWith('.pdf') ? (
+                previewCert.fileUrl ? (
                   <iframe 
                     src={previewCert.fileUrl} 
                     title={previewCert.name}
-                    style={{ width: '100%', height: '500px', border: 'none', borderRadius: '4px' }}
+                    style={{ width: '100%', height: '520px', border: 'none', borderRadius: '4px' }}
                   />
                 ) : (
                   <img 
-                    src={previewCert.fileUrl} 
+                    src={DEFAULT_CERT_PHOTO} 
                     alt={previewCert.name}
-                    style={{ maxWidth: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--border-cyan)' }}
+                    style={{ maxWidth: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '4px', border: '2px solid var(--hud-cyan-bright)', boxShadow: '0 0 25px var(--hud-cyan-glow)' }}
                   />
                 )
               ) : (
-                /* High-Res Cyber Verifiable Credential Sheet Fallback */
-                <div style={{
-                  width: '100%',
-                  padding: '40px 30px',
-                  background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(7, 9, 14, 0.95) 100%)',
-                  border: '2px dashed var(--hud-cyan-bright)',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '16px'
-                }}>
-                  <ShieldCheck size={56} color="var(--hud-cyan-bright)" />
-                  <div>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--hud-amber-bright)', fontWeight: 800, letterSpacing: '1.5px', fontFamily: "'Share Tech Mono', monospace" }}>
-                      SKILLSYNC AI VERIFIED CREDENTIAL
-                    </span>
-                    <h2 style={{ fontSize: '1.5rem', color: '#fff', margin: '6px 0', fontFamily: "'Share Tech Mono', monospace" }}>
-                      {previewCert.name}
-                    </h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: 0 }}>
-                      Verified On-Chain · Issued on {previewCert.issueDate || '2026-08-08'} · Status: Active
-                    </p>
-                  </div>
-
-                  <div style={{ padding: '8px 16px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid #10B981', color: '#10B981', fontSize: '0.8rem', fontWeight: 700, fontFamily: "'Share Tech Mono', monospace" }}>
-                    ✓ CRYPTOGRAPHIC VERIFICATION CHECK PASSED (SCORE +10%)
-                  </div>
-                </div>
+                <img 
+                  src={previewCert.fileUrl || DEFAULT_CERT_PHOTO} 
+                  alt={previewCert.name}
+                  style={{ 
+                    maxWidth: '100%', 
+                    maxHeight: '560px', 
+                    objectFit: 'contain', 
+                    borderRadius: '4px', 
+                    border: '2px solid var(--hud-cyan-bright)',
+                    boxShadow: '0 0 30px var(--hud-cyan-glow)' 
+                  }}
+                />
               )}
             </div>
 
             {/* Modal Actions */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: "'Share Tech Mono', monospace" }}>
-                FILE STATUS: <strong>VALIDATED</strong>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <input 
+                  type="file" 
+                  id={`replace-cert-photo-${previewCert.id}`}
+                  accept=".png,.jpg,.jpeg,.webp,.pdf"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleUpload(e, previewCert.id)}
+                />
+                <label 
+                  htmlFor={`replace-cert-photo-${previewCert.id}`}
+                  style={{
+                    background: 'rgba(0, 229, 255, 0.1)',
+                    border: '1px solid var(--border-cyan)',
+                    color: 'var(--hud-cyan-bright)',
+                    padding: '8px 14px',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontFamily: "'Share Tech Mono', monospace"
+                  }}
+                >
+                  <ImageIcon size={14} /> [ ATTACH / REPLACE CERTIFICATE PHOTO ]
+                </label>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -336,7 +374,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                     className="btn-hud-cyan"
                     style={{ padding: '8px 16px', fontSize: '0.8rem', fontWeight: 800, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
                   >
-                    [ ↗ OPEN ORIGINAL FILE ] <ExternalLink size={14} />
+                    [ ↗ OPEN FULL PHOTO ] <ExternalLink size={14} />
                   </a>
                 )}
 
@@ -348,6 +386,7 @@ export default function CertificatesView({ userData = {}, onUpdateUserData }) {
                   [ CLOSE PREVIEW ]
                 </button>
               </div>
+
             </div>
 
           </div>
