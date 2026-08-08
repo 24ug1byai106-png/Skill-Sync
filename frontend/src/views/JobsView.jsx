@@ -38,8 +38,8 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
   const targetRole = analysis.targetGoal || userData.selectedGoal || userData.profile?.preferredCareer || 'Software Engineer';
   const userLoc = userData.profile?.location || 'Bengaluru';
 
-  // Filters State
-  const [selectedRole, setSelectedRole] = useState(targetRole);
+  // Filters State (Career Role locked to active profile target role)
+  const selectedRole = targetRole;
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('All Locations');
   const [workModeFilter, setWorkModeFilter] = useState('All Modes');
@@ -174,7 +174,6 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
   };
 
   const handleBroadenSearch = () => {
-    setSelectedRole('Software Engineer');
     setLocationFilter('All Locations');
     setWorkModeFilter('All Modes');
     setSearchQuery('');
@@ -309,19 +308,12 @@ export default function JobsView({ userData = {}, onUpdateUserData }) {
         {/* Filter Selectors Row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           
-          {/* Target Role Dropdown */}
-          <div style={{ display: 'flex', flexDir: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontFamily: "'Share Tech Mono', monospace" }}>CAREER ROLE:</label>
-            <select 
-              value={selectedRole} 
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="form-input"
-              style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#07090E' }}
-            >
-              {Object.keys(ROLE_SEARCH_MAP).map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
+          {/* Fixed Target Role Pill (Locked to Candidate Profile) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <label style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontFamily: "'Share Tech Mono', monospace" }}>CAREER ROLE (LOCKED TO PROFILE):</label>
+            <div style={{ padding: '6px 14px', fontSize: '0.82rem', background: 'rgba(0, 229, 255, 0.12)', border: '1px solid var(--border-cyan)', color: 'var(--hud-cyan-bright)', fontWeight: 800, fontFamily: "'Share Tech Mono', monospace", display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🔒 {targetRole.toUpperCase()}
+            </div>
           </div>
 
           {/* Location Dropdown */}
